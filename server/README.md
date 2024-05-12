@@ -17,7 +17,12 @@ The Emby Go client library does not distribute a normal package. Instead you mus
    ```
    mv Emby.ApiClients-master/Clients/Go/ embyclient-rest-go
    ```
-4. Clean up the download:
+4. Rename the Go package in the client source code:
+   ```
+   sed -i 's/embyclient-rest-go/embyclient_rest_go/g' *.go
+   ```
+   This is due to an error with Emby's auto generated code where they try to use a package name with hyphens.
+5. Clean up the download:
    ```
    rm -rf Emby.ApiClients-master
    rm Emby.ApiClients-master.zip
