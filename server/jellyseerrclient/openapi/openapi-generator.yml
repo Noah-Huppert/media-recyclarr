@@ -3,3 +3,4 @@ inputSpec: ./jellyseerrclient/openapi/overseerr-api.yml
 outputDir: ./jellyseerrclient/
 packageName: jellyseerrclient
 isGoSubmodule: True
+withGoMod: False
