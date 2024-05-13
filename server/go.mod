@@ -7,7 +7,6 @@ require (
 	github.com/Noah-Huppert/golog v1.2.1
 	github.com/antihax/optional v1.0.0
 	github.com/caarlos0/env/v11 v11.0.0
-	github.com/deepmap/oapi-codegen/v2 v2.1.0
 	golang.org/x/oauth2 v0.20.0
 )
 
