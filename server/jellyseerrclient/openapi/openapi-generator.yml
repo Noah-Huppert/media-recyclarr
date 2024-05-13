@@ -1,6 +1,6 @@
 generatorName: go
-inputSpec: ./overseerr-api.yml
-output: ../
+inputSpec: ./jellyseerrclient/openapi/overseerr-api.yml
+output: ./jellyseerrclient/
 packageName: jellyseerrclient
 go:
   isGoSubmodule: True
