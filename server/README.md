@@ -33,5 +33,8 @@ The Jellyseerr Go client is auto-generated from their swagger API definition.
 
 The API definition is found is found [here](https://github.com/Fallenbagel/jellyseerr/blob/develop/overseerr-api.yml) and downloaded to `jellyseerrclient/overseerr-api.yml`
 
-The [OpenAPI Generator tool](https://openapi-generator.tech/) is used to generate the client.
-The [Go Swagger](https://github.com/go-swagger/go-swagger) tool is used to generate the SDK.
+The [OpenAPI Generator tool](https://openapi-generator.tech/) is used to generate the client. Run it with:
+
+```
+openapi-generator generate --config ./jellyseerrclient/openapi/openapi-generator.yml 
+```
