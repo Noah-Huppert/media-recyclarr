@@ -36,5 +36,5 @@ The API definition is found is found [here](https://github.com/Fallenbagel/jelly
 The [OpenAPI Generator tool](https://openapi-generator.tech/) is used to generate the client. Run the following command from the `server/` directory:
 
 ```
-openapi-generator generate --config ./jellyseerrclient/openapi/openapi-generator.yml 
+openapi-generator generate --config ./jellyseerrclient/openapi/openapi-generator.yml
 ```
