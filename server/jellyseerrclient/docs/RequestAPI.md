@@ -32,7 +32,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/jellyseerrclient"
+	openapiclient "github.com/Noah-Huppert/media-recyclarr/jellyseerrclient"
 )
 
 func main() {
@@ -93,7 +93,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/jellyseerrclient"
+	openapiclient "github.com/Noah-Huppert/media-recyclarr/jellyseerrclient"
 )
 
 func main() {
@@ -167,7 +167,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/jellyseerrclient"
+	openapiclient "github.com/Noah-Huppert/media-recyclarr/jellyseerrclient"
 )
 
 func main() {
@@ -233,7 +233,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/jellyseerrclient"
+	openapiclient "github.com/Noah-Huppert/media-recyclarr/jellyseerrclient"
 )
 
 func main() {
@@ -301,7 +301,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/jellyseerrclient"
+	openapiclient "github.com/Noah-Huppert/media-recyclarr/jellyseerrclient"
 )
 
 func main() {
@@ -371,7 +371,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/jellyseerrclient"
+	openapiclient "github.com/Noah-Huppert/media-recyclarr/jellyseerrclient"
 )
 
 func main() {
@@ -443,7 +443,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/jellyseerrclient"
+	openapiclient "github.com/Noah-Huppert/media-recyclarr/jellyseerrclient"
 )
 
 func main() {
@@ -513,7 +513,7 @@ import (
 	"context"
 	"fmt"
 	"os"
-	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/jellyseerrclient"
+	openapiclient "github.com/Noah-Huppert/media-recyclarr/jellyseerrclient"
 )
 
 func main() {
