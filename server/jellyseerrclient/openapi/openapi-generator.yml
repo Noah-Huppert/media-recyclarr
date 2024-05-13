@@ -2,5 +2,11 @@ generatorName: go
 inputSpec: ./jellyseerrclient/openapi/overseerr-api.yml
 outputDir: ./jellyseerrclient/
 packageName: jellyseerrclient
+
+gitHost: github.com
+gitUserId: Noah-Huppert
+gitRepoId: media-recyclarr
+
+# Go generator
 isGoSubmodule: True
 withGoMod: False
