@@ -2,7 +2,16 @@
 Media Recyclarr Server.
 
 # Table Of Contents
+- [Configuration](#configuration)
 - [Development](#development)
+
+# Configuration
+Configuration is set via environment variables:
+
+- `MEDIA_RECYCLARR_EMBY_URL`
+- `MEDIA_RECYCLARR_EMBY_API_KEY`
+- `MEDIA_RECYCLARR_JELLYSEERR_URL`
+- `MEDIA_RECYCLARR_JELLYSEERR_API_KEY`
 
 # Development
 ## Emby Go library
@@ -31,7 +40,7 @@ The Emby Go client library does not distribute a normal package. Instead you mus
 ## Jellyseerr Go Library
 The Jellyseerr Go client is auto-generated from their swagger API definition.
 
-The API definition is found is found [here](https://github.com/Fallenbagel/jellyseerr/blob/develop/overseerr-api.yml) and downloaded to `jellyseerrclient/overseerr-api.yml`
+The API definition is found is found [here](https://github.com/Fallenbagel/jellyseerr/blob/develop/overseerr-api.yml) and downloaded to `jellyseerrclient/openapi/overseerr-api.yml`
 
 The [OpenAPI Generator tool](https://openapi-generator.tech/) is used to generate the client. Run the following command from the `server/` directory:
 

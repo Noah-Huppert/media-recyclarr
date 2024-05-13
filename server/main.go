@@ -24,4 +24,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to create emby manager: %s", err)
 	}
+
+	jellyMgr, err := NewJellyseerrManager(NewJellyseerrManagerOpts{
+		JellyseerrURL:    cfg.JellyseerrURL,
+		JellyseerrAPIKey: cfg.JellyseerrAPIKey,
+	})
 }
