@@ -204,8 +204,6 @@ docs/WebPushSettings.md
 docs/WebhookSettings.md
 docs/WebhookSettingsOptions.md
 git_push.sh
-go.mod
-go.sum
 model__auth_jellyfin_post_request.go
 model__auth_local_post_request.go
 model__auth_logout_post_200_response.go
