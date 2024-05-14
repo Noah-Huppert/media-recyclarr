@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 
@@ -41,4 +42,12 @@ func NewJellyseerrManager(opts NewJellyseerrManagerOpts) (*JellyseerrManager, er
 	return &JellyseerrManager{
 		apiClient: *apiClient,
 	}, nil
+}
+
+// GetRequestMedia retrieves all pieces of media which are available
+func (jellyMgr *JellyseerrManager) GetRequestMedia(ctx context.Context) ([]RequestedMedia, error) {
+	/* var req OpenAPIRequest[jellyseerrclient.UserUserIdRequestsGet200Response]
+	req = jellyMgr.apiClient.RequestAPI.RequestGet(ctx)
+	req.Take(1) */
+	return nil, nil
 }
