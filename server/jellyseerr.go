@@ -46,8 +46,26 @@ func NewJellyseerrManager(opts NewJellyseerrManagerOpts) (*JellyseerrManager, er
 
 // GetRequestMedia retrieves all pieces of media which are available
 func (jellyMgr *JellyseerrManager) GetRequestMedia(ctx context.Context) ([]RequestedMedia, error) {
-	/* var req OpenAPIRequest[jellyseerrclient.UserUserIdRequestsGet200Response]
-	req = jellyMgr.apiClient.RequestAPI.RequestGet(ctx)
-	req.Take(1) */
+	items, err := AllPages(AllPagesOpts[
+		jellyseerrclient.RequestAPIRequestGetRequest,
+		jellyseerrclient.UserUserIdRequestsGet200Response,
+		jellyseerrclient.MediaRequest,
+	]{
+		Req: jellyMgr.apiClient.RequestAPI.RequestGet(ctx),
+		ToOAPIResp: func(from jellyseerrclient.UserUserIdRequestsGet200Response) (*OpenAPIResponse[jellyseerrclient.MediaRequest], error) {
+			return &OpenAPIResponse[jellyseerrclient.MediaRequest]{
+				PageInfo: &OpenAPIResponsePageInfo{
+					Page:    from.PageInfo.Page,
+					Pages:   from.PageInfo.Pages,
+					Results: from.PageInfo.Results,
+				},
+				Results: from.Results,
+			}, nil
+		},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get all pages: %s", err)
+	}
+
 	return nil, nil
 }
