@@ -31,9 +31,8 @@ func NewEmbyManager(opts NewEmbyManagerOpts) (*EmbyManager, error) {
 	}
 
 	apiClient := embyclient.NewAPIClient(&embyclient.Configuration{
-		Scheme:   embyURL.Scheme,
-		Host:     embyURL.Host,
-		BasePath: embyURL.Path,
+		Scheme: embyURL.Scheme,
+		Host:   embyURL.Host,
 		DefaultHeader: map[string]string{
 			"X-Emby-Token": opts.EmbyAPIKey,
 		},
