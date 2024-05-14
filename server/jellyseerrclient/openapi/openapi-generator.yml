@@ -10,3 +10,5 @@ gitRepoId: media-recyclarr
 # Go generator
 isGoSubmodule: True
 withGoMod: False
+structPrefix: True
+enumClassPrefix: True

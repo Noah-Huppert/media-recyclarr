@@ -23,7 +23,7 @@ import (
 // MediaAPIService MediaAPI service
 type MediaAPIService service
 
-type ApiMediaGetRequest struct {
+type MediaAPIMediaGetRequest struct {
 	ctx context.Context
 	ApiService *MediaAPIService
 	take *float32
@@ -32,27 +32,27 @@ type ApiMediaGetRequest struct {
 	sort *string
 }
 
-func (r ApiMediaGetRequest) Take(take float32) ApiMediaGetRequest {
+func (r MediaAPIMediaGetRequest) Take(take float32) MediaAPIMediaGetRequest {
 	r.take = &take
 	return r
 }
 
-func (r ApiMediaGetRequest) Skip(skip float32) ApiMediaGetRequest {
+func (r MediaAPIMediaGetRequest) Skip(skip float32) MediaAPIMediaGetRequest {
 	r.skip = &skip
 	return r
 }
 
-func (r ApiMediaGetRequest) Filter(filter string) ApiMediaGetRequest {
+func (r MediaAPIMediaGetRequest) Filter(filter string) MediaAPIMediaGetRequest {
 	r.filter = &filter
 	return r
 }
 
-func (r ApiMediaGetRequest) Sort(sort string) ApiMediaGetRequest {
+func (r MediaAPIMediaGetRequest) Sort(sort string) MediaAPIMediaGetRequest {
 	r.sort = &sort
 	return r
 }
 
-func (r ApiMediaGetRequest) Execute() (*MediaGet200Response, *http.Response, error) {
+func (r MediaAPIMediaGetRequest) Execute() (*MediaGet200Response, *http.Response, error) {
 	return r.ApiService.MediaGetExecute(r)
 }
 
@@ -62,10 +62,10 @@ MediaGet Get media
 Returns all media (can be filtered and limited) in a JSON object.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiMediaGetRequest
+ @return MediaAPIMediaGetRequest
 */
-func (a *MediaAPIService) MediaGet(ctx context.Context) ApiMediaGetRequest {
-	return ApiMediaGetRequest{
+func (a *MediaAPIService) MediaGet(ctx context.Context) MediaAPIMediaGetRequest {
+	return MediaAPIMediaGetRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
@@ -73,7 +73,7 @@ func (a *MediaAPIService) MediaGet(ctx context.Context) ApiMediaGetRequest {
 
 // Execute executes the request
 //  @return MediaGet200Response
-func (a *MediaAPIService) MediaGetExecute(r ApiMediaGetRequest) (*MediaGet200Response, *http.Response, error) {
+func (a *MediaAPIService) MediaGetExecute(r MediaAPIMediaGetRequest) (*MediaGet200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodGet
 		localVarPostBody     interface{}
@@ -175,13 +175,13 @@ func (a *MediaAPIService) MediaGetExecute(r ApiMediaGetRequest) (*MediaGet200Res
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiMediaMediaIdDeleteRequest struct {
+type MediaAPIMediaMediaIdDeleteRequest struct {
 	ctx context.Context
 	ApiService *MediaAPIService
 	mediaId string
 }
 
-func (r ApiMediaMediaIdDeleteRequest) Execute() (*http.Response, error) {
+func (r MediaAPIMediaMediaIdDeleteRequest) Execute() (*http.Response, error) {
 	return r.ApiService.MediaMediaIdDeleteExecute(r)
 }
 
@@ -192,10 +192,10 @@ Removes a media item. The `MANAGE_REQUESTS` permission is required to perform th
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param mediaId Media ID
- @return ApiMediaMediaIdDeleteRequest
+ @return MediaAPIMediaMediaIdDeleteRequest
 */
-func (a *MediaAPIService) MediaMediaIdDelete(ctx context.Context, mediaId string) ApiMediaMediaIdDeleteRequest {
-	return ApiMediaMediaIdDeleteRequest{
+func (a *MediaAPIService) MediaMediaIdDelete(ctx context.Context, mediaId string) MediaAPIMediaMediaIdDeleteRequest {
+	return MediaAPIMediaMediaIdDeleteRequest{
 		ApiService: a,
 		ctx: ctx,
 		mediaId: mediaId,
@@ -203,7 +203,7 @@ func (a *MediaAPIService) MediaMediaIdDelete(ctx context.Context, mediaId string
 }
 
 // Execute executes the request
-func (a *MediaAPIService) MediaMediaIdDeleteExecute(r ApiMediaMediaIdDeleteRequest) (*http.Response, error) {
+func (a *MediaAPIService) MediaMediaIdDeleteExecute(r MediaAPIMediaMediaIdDeleteRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodDelete
 		localVarPostBody     interface{}
@@ -281,13 +281,13 @@ func (a *MediaAPIService) MediaMediaIdDeleteExecute(r ApiMediaMediaIdDeleteReque
 	return localVarHTTPResponse, nil
 }
 
-type ApiMediaMediaIdFileDeleteRequest struct {
+type MediaAPIMediaMediaIdFileDeleteRequest struct {
 	ctx context.Context
 	ApiService *MediaAPIService
 	mediaId string
 }
 
-func (r ApiMediaMediaIdFileDeleteRequest) Execute() (*http.Response, error) {
+func (r MediaAPIMediaMediaIdFileDeleteRequest) Execute() (*http.Response, error) {
 	return r.ApiService.MediaMediaIdFileDeleteExecute(r)
 }
 
@@ -298,10 +298,10 @@ Removes a media file from radarr/sonarr. The `ADMIN` permission is required to p
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param mediaId Media ID
- @return ApiMediaMediaIdFileDeleteRequest
+ @return MediaAPIMediaMediaIdFileDeleteRequest
 */
-func (a *MediaAPIService) MediaMediaIdFileDelete(ctx context.Context, mediaId string) ApiMediaMediaIdFileDeleteRequest {
-	return ApiMediaMediaIdFileDeleteRequest{
+func (a *MediaAPIService) MediaMediaIdFileDelete(ctx context.Context, mediaId string) MediaAPIMediaMediaIdFileDeleteRequest {
+	return MediaAPIMediaMediaIdFileDeleteRequest{
 		ApiService: a,
 		ctx: ctx,
 		mediaId: mediaId,
@@ -309,7 +309,7 @@ func (a *MediaAPIService) MediaMediaIdFileDelete(ctx context.Context, mediaId st
 }
 
 // Execute executes the request
-func (a *MediaAPIService) MediaMediaIdFileDeleteExecute(r ApiMediaMediaIdFileDeleteRequest) (*http.Response, error) {
+func (a *MediaAPIService) MediaMediaIdFileDeleteExecute(r MediaAPIMediaMediaIdFileDeleteRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodDelete
 		localVarPostBody     interface{}
@@ -387,7 +387,7 @@ func (a *MediaAPIService) MediaMediaIdFileDeleteExecute(r ApiMediaMediaIdFileDel
 	return localVarHTTPResponse, nil
 }
 
-type ApiMediaMediaIdStatusPostRequest struct {
+type MediaAPIMediaMediaIdStatusPostRequest struct {
 	ctx context.Context
 	ApiService *MediaAPIService
 	mediaId string
@@ -395,12 +395,12 @@ type ApiMediaMediaIdStatusPostRequest struct {
 	mediaMediaIdStatusPostRequest *MediaMediaIdStatusPostRequest
 }
 
-func (r ApiMediaMediaIdStatusPostRequest) MediaMediaIdStatusPostRequest(mediaMediaIdStatusPostRequest MediaMediaIdStatusPostRequest) ApiMediaMediaIdStatusPostRequest {
+func (r MediaAPIMediaMediaIdStatusPostRequest) MediaMediaIdStatusPostRequest(mediaMediaIdStatusPostRequest MediaMediaIdStatusPostRequest) MediaAPIMediaMediaIdStatusPostRequest {
 	r.mediaMediaIdStatusPostRequest = &mediaMediaIdStatusPostRequest
 	return r
 }
 
-func (r ApiMediaMediaIdStatusPostRequest) Execute() (*MediaInfo, *http.Response, error) {
+func (r MediaAPIMediaMediaIdStatusPostRequest) Execute() (*MediaInfo, *http.Response, error) {
 	return r.ApiService.MediaMediaIdStatusPostExecute(r)
 }
 
@@ -412,10 +412,10 @@ Updates a media item's status and returns the media in JSON format
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param mediaId Media ID
  @param status New status
- @return ApiMediaMediaIdStatusPostRequest
+ @return MediaAPIMediaMediaIdStatusPostRequest
 */
-func (a *MediaAPIService) MediaMediaIdStatusPost(ctx context.Context, mediaId string, status string) ApiMediaMediaIdStatusPostRequest {
-	return ApiMediaMediaIdStatusPostRequest{
+func (a *MediaAPIService) MediaMediaIdStatusPost(ctx context.Context, mediaId string, status string) MediaAPIMediaMediaIdStatusPostRequest {
+	return MediaAPIMediaMediaIdStatusPostRequest{
 		ApiService: a,
 		ctx: ctx,
 		mediaId: mediaId,
@@ -425,7 +425,7 @@ func (a *MediaAPIService) MediaMediaIdStatusPost(ctx context.Context, mediaId st
 
 // Execute executes the request
 //  @return MediaInfo
-func (a *MediaAPIService) MediaMediaIdStatusPostExecute(r ApiMediaMediaIdStatusPostRequest) (*MediaInfo, *http.Response, error) {
+func (a *MediaAPIService) MediaMediaIdStatusPostExecute(r MediaAPIMediaMediaIdStatusPostRequest) (*MediaInfo, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
@@ -516,13 +516,13 @@ func (a *MediaAPIService) MediaMediaIdStatusPostExecute(r ApiMediaMediaIdStatusP
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiMediaMediaIdWatchDataGetRequest struct {
+type MediaAPIMediaMediaIdWatchDataGetRequest struct {
 	ctx context.Context
 	ApiService *MediaAPIService
 	mediaId string
 }
 
-func (r ApiMediaMediaIdWatchDataGetRequest) Execute() (*MediaMediaIdWatchDataGet200Response, *http.Response, error) {
+func (r MediaAPIMediaMediaIdWatchDataGetRequest) Execute() (*MediaMediaIdWatchDataGet200Response, *http.Response, error) {
 	return r.ApiService.MediaMediaIdWatchDataGetExecute(r)
 }
 
@@ -536,10 +536,10 @@ Requires the `ADMIN` permission.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param mediaId Media ID
- @return ApiMediaMediaIdWatchDataGetRequest
+ @return MediaAPIMediaMediaIdWatchDataGetRequest
 */
-func (a *MediaAPIService) MediaMediaIdWatchDataGet(ctx context.Context, mediaId string) ApiMediaMediaIdWatchDataGetRequest {
-	return ApiMediaMediaIdWatchDataGetRequest{
+func (a *MediaAPIService) MediaMediaIdWatchDataGet(ctx context.Context, mediaId string) MediaAPIMediaMediaIdWatchDataGetRequest {
+	return MediaAPIMediaMediaIdWatchDataGetRequest{
 		ApiService: a,
 		ctx: ctx,
 		mediaId: mediaId,
@@ -548,7 +548,7 @@ func (a *MediaAPIService) MediaMediaIdWatchDataGet(ctx context.Context, mediaId 
 
 // Execute executes the request
 //  @return MediaMediaIdWatchDataGet200Response
-func (a *MediaAPIService) MediaMediaIdWatchDataGetExecute(r ApiMediaMediaIdWatchDataGetRequest) (*MediaMediaIdWatchDataGet200Response, *http.Response, error) {
+func (a *MediaAPIService) MediaMediaIdWatchDataGetExecute(r MediaAPIMediaMediaIdWatchDataGetRequest) (*MediaMediaIdWatchDataGet200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodGet
 		localVarPostBody     interface{}

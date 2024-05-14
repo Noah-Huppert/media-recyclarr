@@ -23,19 +23,19 @@ import (
 // WatchlistAPIService WatchlistAPI service
 type WatchlistAPIService service
 
-type ApiUserUserIdWatchlistGetRequest struct {
+type WatchlistAPIUserUserIdWatchlistGetRequest struct {
 	ctx context.Context
 	ApiService *WatchlistAPIService
 	userId float32
 	page *float32
 }
 
-func (r ApiUserUserIdWatchlistGetRequest) Page(page float32) ApiUserUserIdWatchlistGetRequest {
+func (r WatchlistAPIUserUserIdWatchlistGetRequest) Page(page float32) WatchlistAPIUserUserIdWatchlistGetRequest {
 	r.page = &page
 	return r
 }
 
-func (r ApiUserUserIdWatchlistGetRequest) Execute() (*UserUserIdWatchlistGet200Response, *http.Response, error) {
+func (r WatchlistAPIUserUserIdWatchlistGetRequest) Execute() (*UserUserIdWatchlistGet200Response, *http.Response, error) {
 	return r.ApiService.UserUserIdWatchlistGetExecute(r)
 }
 
@@ -47,10 +47,10 @@ Retrieves a user's Plex Watchlist in a JSON object.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param userId
- @return ApiUserUserIdWatchlistGetRequest
+ @return WatchlistAPIUserUserIdWatchlistGetRequest
 */
-func (a *WatchlistAPIService) UserUserIdWatchlistGet(ctx context.Context, userId float32) ApiUserUserIdWatchlistGetRequest {
-	return ApiUserUserIdWatchlistGetRequest{
+func (a *WatchlistAPIService) UserUserIdWatchlistGet(ctx context.Context, userId float32) WatchlistAPIUserUserIdWatchlistGetRequest {
+	return WatchlistAPIUserUserIdWatchlistGetRequest{
 		ApiService: a,
 		ctx: ctx,
 		userId: userId,
@@ -59,7 +59,7 @@ func (a *WatchlistAPIService) UserUserIdWatchlistGet(ctx context.Context, userId
 
 // Execute executes the request
 //  @return UserUserIdWatchlistGet200Response
-func (a *WatchlistAPIService) UserUserIdWatchlistGetExecute(r ApiUserUserIdWatchlistGetRequest) (*UserUserIdWatchlistGet200Response, *http.Response, error) {
+func (a *WatchlistAPIService) UserUserIdWatchlistGetExecute(r WatchlistAPIUserUserIdWatchlistGetRequest) (*UserUserIdWatchlistGet200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodGet
 		localVarPostBody     interface{}
@@ -153,18 +153,18 @@ func (a *WatchlistAPIService) UserUserIdWatchlistGetExecute(r ApiUserUserIdWatch
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiWatchlistPostRequest struct {
+type WatchlistAPIWatchlistPostRequest struct {
 	ctx context.Context
 	ApiService *WatchlistAPIService
 	watchlist *Watchlist
 }
 
-func (r ApiWatchlistPostRequest) Watchlist(watchlist Watchlist) ApiWatchlistPostRequest {
+func (r WatchlistAPIWatchlistPostRequest) Watchlist(watchlist Watchlist) WatchlistAPIWatchlistPostRequest {
 	r.watchlist = &watchlist
 	return r
 }
 
-func (r ApiWatchlistPostRequest) Execute() (*Watchlist, *http.Response, error) {
+func (r WatchlistAPIWatchlistPostRequest) Execute() (*Watchlist, *http.Response, error) {
 	return r.ApiService.WatchlistPostExecute(r)
 }
 
@@ -172,10 +172,10 @@ func (r ApiWatchlistPostRequest) Execute() (*Watchlist, *http.Response, error) {
 WatchlistPost Add media to watchlist
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiWatchlistPostRequest
+ @return WatchlistAPIWatchlistPostRequest
 */
-func (a *WatchlistAPIService) WatchlistPost(ctx context.Context) ApiWatchlistPostRequest {
-	return ApiWatchlistPostRequest{
+func (a *WatchlistAPIService) WatchlistPost(ctx context.Context) WatchlistAPIWatchlistPostRequest {
+	return WatchlistAPIWatchlistPostRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
@@ -183,7 +183,7 @@ func (a *WatchlistAPIService) WatchlistPost(ctx context.Context) ApiWatchlistPos
 
 // Execute executes the request
 //  @return Watchlist
-func (a *WatchlistAPIService) WatchlistPostExecute(r ApiWatchlistPostRequest) (*Watchlist, *http.Response, error) {
+func (a *WatchlistAPIService) WatchlistPostExecute(r WatchlistAPIWatchlistPostRequest) (*Watchlist, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
@@ -275,13 +275,13 @@ func (a *WatchlistAPIService) WatchlistPostExecute(r ApiWatchlistPostRequest) (*
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiWatchlistTmdbIdDeleteRequest struct {
+type WatchlistAPIWatchlistTmdbIdDeleteRequest struct {
 	ctx context.Context
 	ApiService *WatchlistAPIService
 	tmdbId string
 }
 
-func (r ApiWatchlistTmdbIdDeleteRequest) Execute() (*http.Response, error) {
+func (r WatchlistAPIWatchlistTmdbIdDeleteRequest) Execute() (*http.Response, error) {
 	return r.ApiService.WatchlistTmdbIdDeleteExecute(r)
 }
 
@@ -292,10 +292,10 @@ Removes a watchlist item.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param tmdbId tmdbId ID
- @return ApiWatchlistTmdbIdDeleteRequest
+ @return WatchlistAPIWatchlistTmdbIdDeleteRequest
 */
-func (a *WatchlistAPIService) WatchlistTmdbIdDelete(ctx context.Context, tmdbId string) ApiWatchlistTmdbIdDeleteRequest {
-	return ApiWatchlistTmdbIdDeleteRequest{
+func (a *WatchlistAPIService) WatchlistTmdbIdDelete(ctx context.Context, tmdbId string) WatchlistAPIWatchlistTmdbIdDeleteRequest {
+	return WatchlistAPIWatchlistTmdbIdDeleteRequest{
 		ApiService: a,
 		ctx: ctx,
 		tmdbId: tmdbId,
@@ -303,7 +303,7 @@ func (a *WatchlistAPIService) WatchlistTmdbIdDelete(ctx context.Context, tmdbId 
 }
 
 // Execute executes the request
-func (a *WatchlistAPIService) WatchlistTmdbIdDeleteExecute(r ApiWatchlistTmdbIdDeleteRequest) (*http.Response, error) {
+func (a *WatchlistAPIService) WatchlistTmdbIdDeleteExecute(r WatchlistAPIWatchlistTmdbIdDeleteRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodDelete
 		localVarPostBody     interface{}

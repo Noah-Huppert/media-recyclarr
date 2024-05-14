@@ -23,12 +23,12 @@ import (
 // UsersAPIService UsersAPI service
 type UsersAPIService service
 
-type ApiAuthMeGetRequest struct {
+type UsersAPIAuthMeGetRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 }
 
-func (r ApiAuthMeGetRequest) Execute() (*User, *http.Response, error) {
+func (r UsersAPIAuthMeGetRequest) Execute() (*User, *http.Response, error) {
 	return r.ApiService.AuthMeGetExecute(r)
 }
 
@@ -38,10 +38,10 @@ AuthMeGet Get logged-in user
 Returns the currently logged-in user.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiAuthMeGetRequest
+ @return UsersAPIAuthMeGetRequest
 */
-func (a *UsersAPIService) AuthMeGet(ctx context.Context) ApiAuthMeGetRequest {
-	return ApiAuthMeGetRequest{
+func (a *UsersAPIService) AuthMeGet(ctx context.Context) UsersAPIAuthMeGetRequest {
+	return UsersAPIAuthMeGetRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
@@ -49,7 +49,7 @@ func (a *UsersAPIService) AuthMeGet(ctx context.Context) ApiAuthMeGetRequest {
 
 // Execute executes the request
 //  @return User
-func (a *UsersAPIService) AuthMeGetExecute(r ApiAuthMeGetRequest) (*User, *http.Response, error) {
+func (a *UsersAPIService) AuthMeGetExecute(r UsersAPIAuthMeGetRequest) (*User, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodGet
 		localVarPostBody     interface{}
@@ -136,19 +136,19 @@ func (a *UsersAPIService) AuthMeGetExecute(r ApiAuthMeGetRequest) (*User, *http.
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiAuthResetPasswordGuidPostRequest struct {
+type UsersAPIAuthResetPasswordGuidPostRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	guid string
 	authResetPasswordGuidPostRequest *AuthResetPasswordGuidPostRequest
 }
 
-func (r ApiAuthResetPasswordGuidPostRequest) AuthResetPasswordGuidPostRequest(authResetPasswordGuidPostRequest AuthResetPasswordGuidPostRequest) ApiAuthResetPasswordGuidPostRequest {
+func (r UsersAPIAuthResetPasswordGuidPostRequest) AuthResetPasswordGuidPostRequest(authResetPasswordGuidPostRequest AuthResetPasswordGuidPostRequest) UsersAPIAuthResetPasswordGuidPostRequest {
 	r.authResetPasswordGuidPostRequest = &authResetPasswordGuidPostRequest
 	return r
 }
 
-func (r ApiAuthResetPasswordGuidPostRequest) Execute() (*AuthLogoutPost200Response, *http.Response, error) {
+func (r UsersAPIAuthResetPasswordGuidPostRequest) Execute() (*AuthLogoutPost200Response, *http.Response, error) {
 	return r.ApiService.AuthResetPasswordGuidPostExecute(r)
 }
 
@@ -159,10 +159,10 @@ Resets the password for a user if the given guid is connected to a user
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param guid
- @return ApiAuthResetPasswordGuidPostRequest
+ @return UsersAPIAuthResetPasswordGuidPostRequest
 */
-func (a *UsersAPIService) AuthResetPasswordGuidPost(ctx context.Context, guid string) ApiAuthResetPasswordGuidPostRequest {
-	return ApiAuthResetPasswordGuidPostRequest{
+func (a *UsersAPIService) AuthResetPasswordGuidPost(ctx context.Context, guid string) UsersAPIAuthResetPasswordGuidPostRequest {
+	return UsersAPIAuthResetPasswordGuidPostRequest{
 		ApiService: a,
 		ctx: ctx,
 		guid: guid,
@@ -171,7 +171,7 @@ func (a *UsersAPIService) AuthResetPasswordGuidPost(ctx context.Context, guid st
 
 // Execute executes the request
 //  @return AuthLogoutPost200Response
-func (a *UsersAPIService) AuthResetPasswordGuidPostExecute(r ApiAuthResetPasswordGuidPostRequest) (*AuthLogoutPost200Response, *http.Response, error) {
+func (a *UsersAPIService) AuthResetPasswordGuidPostExecute(r UsersAPIAuthResetPasswordGuidPostRequest) (*AuthLogoutPost200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
@@ -250,18 +250,18 @@ func (a *UsersAPIService) AuthResetPasswordGuidPostExecute(r ApiAuthResetPasswor
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiAuthResetPasswordPostRequest struct {
+type UsersAPIAuthResetPasswordPostRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	authResetPasswordPostRequest *AuthResetPasswordPostRequest
 }
 
-func (r ApiAuthResetPasswordPostRequest) AuthResetPasswordPostRequest(authResetPasswordPostRequest AuthResetPasswordPostRequest) ApiAuthResetPasswordPostRequest {
+func (r UsersAPIAuthResetPasswordPostRequest) AuthResetPasswordPostRequest(authResetPasswordPostRequest AuthResetPasswordPostRequest) UsersAPIAuthResetPasswordPostRequest {
 	r.authResetPasswordPostRequest = &authResetPasswordPostRequest
 	return r
 }
 
-func (r ApiAuthResetPasswordPostRequest) Execute() (*AuthLogoutPost200Response, *http.Response, error) {
+func (r UsersAPIAuthResetPasswordPostRequest) Execute() (*AuthLogoutPost200Response, *http.Response, error) {
 	return r.ApiService.AuthResetPasswordPostExecute(r)
 }
 
@@ -271,10 +271,10 @@ AuthResetPasswordPost Send a reset password email
 Sends a reset password email to the email if the user exists
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiAuthResetPasswordPostRequest
+ @return UsersAPIAuthResetPasswordPostRequest
 */
-func (a *UsersAPIService) AuthResetPasswordPost(ctx context.Context) ApiAuthResetPasswordPostRequest {
-	return ApiAuthResetPasswordPostRequest{
+func (a *UsersAPIService) AuthResetPasswordPost(ctx context.Context) UsersAPIAuthResetPasswordPostRequest {
+	return UsersAPIAuthResetPasswordPostRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
@@ -282,7 +282,7 @@ func (a *UsersAPIService) AuthResetPasswordPost(ctx context.Context) ApiAuthRese
 
 // Execute executes the request
 //  @return AuthLogoutPost200Response
-func (a *UsersAPIService) AuthResetPasswordPostExecute(r ApiAuthResetPasswordPostRequest) (*AuthLogoutPost200Response, *http.Response, error) {
+func (a *UsersAPIService) AuthResetPasswordPostExecute(r UsersAPIAuthResetPasswordPostRequest) (*AuthLogoutPost200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
@@ -360,12 +360,12 @@ func (a *UsersAPIService) AuthResetPasswordPostExecute(r ApiAuthResetPasswordPos
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiSettingsJellyfinUsersGetRequest struct {
+type UsersAPISettingsJellyfinUsersGetRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 }
 
-func (r ApiSettingsJellyfinUsersGetRequest) Execute() ([]SettingsJellyfinUsersGet200ResponseInner, *http.Response, error) {
+func (r UsersAPISettingsJellyfinUsersGetRequest) Execute() ([]SettingsJellyfinUsersGet200ResponseInner, *http.Response, error) {
 	return r.ApiService.SettingsJellyfinUsersGetExecute(r)
 }
 
@@ -375,10 +375,10 @@ SettingsJellyfinUsersGet Get Jellyfin Users
 Returns a list of Jellyfin Users in a JSON array.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiSettingsJellyfinUsersGetRequest
+ @return UsersAPISettingsJellyfinUsersGetRequest
 */
-func (a *UsersAPIService) SettingsJellyfinUsersGet(ctx context.Context) ApiSettingsJellyfinUsersGetRequest {
-	return ApiSettingsJellyfinUsersGetRequest{
+func (a *UsersAPIService) SettingsJellyfinUsersGet(ctx context.Context) UsersAPISettingsJellyfinUsersGetRequest {
+	return UsersAPISettingsJellyfinUsersGetRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
@@ -386,7 +386,7 @@ func (a *UsersAPIService) SettingsJellyfinUsersGet(ctx context.Context) ApiSetti
 
 // Execute executes the request
 //  @return []SettingsJellyfinUsersGet200ResponseInner
-func (a *UsersAPIService) SettingsJellyfinUsersGetExecute(r ApiSettingsJellyfinUsersGetRequest) ([]SettingsJellyfinUsersGet200ResponseInner, *http.Response, error) {
+func (a *UsersAPIService) SettingsJellyfinUsersGetExecute(r UsersAPISettingsJellyfinUsersGetRequest) ([]SettingsJellyfinUsersGet200ResponseInner, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodGet
 		localVarPostBody     interface{}
@@ -473,12 +473,12 @@ func (a *UsersAPIService) SettingsJellyfinUsersGetExecute(r ApiSettingsJellyfinU
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiSettingsPlexUsersGetRequest struct {
+type UsersAPISettingsPlexUsersGetRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 }
 
-func (r ApiSettingsPlexUsersGetRequest) Execute() ([]SettingsPlexUsersGet200ResponseInner, *http.Response, error) {
+func (r UsersAPISettingsPlexUsersGetRequest) Execute() ([]SettingsPlexUsersGet200ResponseInner, *http.Response, error) {
 	return r.ApiService.SettingsPlexUsersGetExecute(r)
 }
 
@@ -491,10 +491,10 @@ Requires the `MANAGE_USERS` permission.
 
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiSettingsPlexUsersGetRequest
+ @return UsersAPISettingsPlexUsersGetRequest
 */
-func (a *UsersAPIService) SettingsPlexUsersGet(ctx context.Context) ApiSettingsPlexUsersGetRequest {
-	return ApiSettingsPlexUsersGetRequest{
+func (a *UsersAPIService) SettingsPlexUsersGet(ctx context.Context) UsersAPISettingsPlexUsersGetRequest {
+	return UsersAPISettingsPlexUsersGetRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
@@ -502,7 +502,7 @@ func (a *UsersAPIService) SettingsPlexUsersGet(ctx context.Context) ApiSettingsP
 
 // Execute executes the request
 //  @return []SettingsPlexUsersGet200ResponseInner
-func (a *UsersAPIService) SettingsPlexUsersGetExecute(r ApiSettingsPlexUsersGetRequest) ([]SettingsPlexUsersGet200ResponseInner, *http.Response, error) {
+func (a *UsersAPIService) SettingsPlexUsersGetExecute(r UsersAPISettingsPlexUsersGetRequest) ([]SettingsPlexUsersGet200ResponseInner, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodGet
 		localVarPostBody     interface{}
@@ -589,7 +589,7 @@ func (a *UsersAPIService) SettingsPlexUsersGetExecute(r ApiSettingsPlexUsersGetR
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserGetRequest struct {
+type UsersAPIUserGetRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	take *float32
@@ -597,22 +597,22 @@ type ApiUserGetRequest struct {
 	sort *string
 }
 
-func (r ApiUserGetRequest) Take(take float32) ApiUserGetRequest {
+func (r UsersAPIUserGetRequest) Take(take float32) UsersAPIUserGetRequest {
 	r.take = &take
 	return r
 }
 
-func (r ApiUserGetRequest) Skip(skip float32) ApiUserGetRequest {
+func (r UsersAPIUserGetRequest) Skip(skip float32) UsersAPIUserGetRequest {
 	r.skip = &skip
 	return r
 }
 
-func (r ApiUserGetRequest) Sort(sort string) ApiUserGetRequest {
+func (r UsersAPIUserGetRequest) Sort(sort string) UsersAPIUserGetRequest {
 	r.sort = &sort
 	return r
 }
 
-func (r ApiUserGetRequest) Execute() (*UserGet200Response, *http.Response, error) {
+func (r UsersAPIUserGetRequest) Execute() (*UserGet200Response, *http.Response, error) {
 	return r.ApiService.UserGetExecute(r)
 }
 
@@ -622,10 +622,10 @@ UserGet Get all users
 Returns all users in a JSON object.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiUserGetRequest
+ @return UsersAPIUserGetRequest
 */
-func (a *UsersAPIService) UserGet(ctx context.Context) ApiUserGetRequest {
-	return ApiUserGetRequest{
+func (a *UsersAPIService) UserGet(ctx context.Context) UsersAPIUserGetRequest {
+	return UsersAPIUserGetRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
@@ -633,7 +633,7 @@ func (a *UsersAPIService) UserGet(ctx context.Context) ApiUserGetRequest {
 
 // Execute executes the request
 //  @return UserGet200Response
-func (a *UsersAPIService) UserGetExecute(r ApiUserGetRequest) (*UserGet200Response, *http.Response, error) {
+func (a *UsersAPIService) UserGetExecute(r UsersAPIUserGetRequest) (*UserGet200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodGet
 		localVarPostBody     interface{}
@@ -732,18 +732,18 @@ func (a *UsersAPIService) UserGetExecute(r ApiUserGetRequest) (*UserGet200Respon
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserImportFromJellyfinPostRequest struct {
+type UsersAPIUserImportFromJellyfinPostRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userImportFromJellyfinPostRequest *UserImportFromJellyfinPostRequest
 }
 
-func (r ApiUserImportFromJellyfinPostRequest) UserImportFromJellyfinPostRequest(userImportFromJellyfinPostRequest UserImportFromJellyfinPostRequest) ApiUserImportFromJellyfinPostRequest {
+func (r UsersAPIUserImportFromJellyfinPostRequest) UserImportFromJellyfinPostRequest(userImportFromJellyfinPostRequest UserImportFromJellyfinPostRequest) UsersAPIUserImportFromJellyfinPostRequest {
 	r.userImportFromJellyfinPostRequest = &userImportFromJellyfinPostRequest
 	return r
 }
 
-func (r ApiUserImportFromJellyfinPostRequest) Execute() ([]User, *http.Response, error) {
+func (r UsersAPIUserImportFromJellyfinPostRequest) Execute() ([]User, *http.Response, error) {
 	return r.ApiService.UserImportFromJellyfinPostExecute(r)
 }
 
@@ -756,10 +756,10 @@ Requires the `MANAGE_USERS` permission.
 
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiUserImportFromJellyfinPostRequest
+ @return UsersAPIUserImportFromJellyfinPostRequest
 */
-func (a *UsersAPIService) UserImportFromJellyfinPost(ctx context.Context) ApiUserImportFromJellyfinPostRequest {
-	return ApiUserImportFromJellyfinPostRequest{
+func (a *UsersAPIService) UserImportFromJellyfinPost(ctx context.Context) UsersAPIUserImportFromJellyfinPostRequest {
+	return UsersAPIUserImportFromJellyfinPostRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
@@ -767,7 +767,7 @@ func (a *UsersAPIService) UserImportFromJellyfinPost(ctx context.Context) ApiUse
 
 // Execute executes the request
 //  @return []User
-func (a *UsersAPIService) UserImportFromJellyfinPostExecute(r ApiUserImportFromJellyfinPostRequest) ([]User, *http.Response, error) {
+func (a *UsersAPIService) UserImportFromJellyfinPostExecute(r UsersAPIUserImportFromJellyfinPostRequest) ([]User, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
@@ -856,18 +856,18 @@ func (a *UsersAPIService) UserImportFromJellyfinPostExecute(r ApiUserImportFromJ
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserImportFromPlexPostRequest struct {
+type UsersAPIUserImportFromPlexPostRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userImportFromPlexPostRequest *UserImportFromPlexPostRequest
 }
 
-func (r ApiUserImportFromPlexPostRequest) UserImportFromPlexPostRequest(userImportFromPlexPostRequest UserImportFromPlexPostRequest) ApiUserImportFromPlexPostRequest {
+func (r UsersAPIUserImportFromPlexPostRequest) UserImportFromPlexPostRequest(userImportFromPlexPostRequest UserImportFromPlexPostRequest) UsersAPIUserImportFromPlexPostRequest {
 	r.userImportFromPlexPostRequest = &userImportFromPlexPostRequest
 	return r
 }
 
-func (r ApiUserImportFromPlexPostRequest) Execute() ([]User, *http.Response, error) {
+func (r UsersAPIUserImportFromPlexPostRequest) Execute() ([]User, *http.Response, error) {
 	return r.ApiService.UserImportFromPlexPostExecute(r)
 }
 
@@ -880,10 +880,10 @@ Requires the `MANAGE_USERS` permission.
 
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiUserImportFromPlexPostRequest
+ @return UsersAPIUserImportFromPlexPostRequest
 */
-func (a *UsersAPIService) UserImportFromPlexPost(ctx context.Context) ApiUserImportFromPlexPostRequest {
-	return ApiUserImportFromPlexPostRequest{
+func (a *UsersAPIService) UserImportFromPlexPost(ctx context.Context) UsersAPIUserImportFromPlexPostRequest {
+	return UsersAPIUserImportFromPlexPostRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
@@ -891,7 +891,7 @@ func (a *UsersAPIService) UserImportFromPlexPost(ctx context.Context) ApiUserImp
 
 // Execute executes the request
 //  @return []User
-func (a *UsersAPIService) UserImportFromPlexPostExecute(r ApiUserImportFromPlexPostRequest) ([]User, *http.Response, error) {
+func (a *UsersAPIService) UserImportFromPlexPostExecute(r UsersAPIUserImportFromPlexPostRequest) ([]User, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
@@ -980,18 +980,18 @@ func (a *UsersAPIService) UserImportFromPlexPostExecute(r ApiUserImportFromPlexP
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserPostRequest struct {
+type UsersAPIUserPostRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userPostRequest *UserPostRequest
 }
 
-func (r ApiUserPostRequest) UserPostRequest(userPostRequest UserPostRequest) ApiUserPostRequest {
+func (r UsersAPIUserPostRequest) UserPostRequest(userPostRequest UserPostRequest) UsersAPIUserPostRequest {
 	r.userPostRequest = &userPostRequest
 	return r
 }
 
-func (r ApiUserPostRequest) Execute() (*User, *http.Response, error) {
+func (r UsersAPIUserPostRequest) Execute() (*User, *http.Response, error) {
 	return r.ApiService.UserPostExecute(r)
 }
 
@@ -1002,10 +1002,10 @@ Creates a new user. Requires the `MANAGE_USERS` permission.
 
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiUserPostRequest
+ @return UsersAPIUserPostRequest
 */
-func (a *UsersAPIService) UserPost(ctx context.Context) ApiUserPostRequest {
-	return ApiUserPostRequest{
+func (a *UsersAPIService) UserPost(ctx context.Context) UsersAPIUserPostRequest {
+	return UsersAPIUserPostRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
@@ -1013,7 +1013,7 @@ func (a *UsersAPIService) UserPost(ctx context.Context) ApiUserPostRequest {
 
 // Execute executes the request
 //  @return User
-func (a *UsersAPIService) UserPostExecute(r ApiUserPostRequest) (*User, *http.Response, error) {
+func (a *UsersAPIService) UserPostExecute(r UsersAPIUserPostRequest) (*User, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
@@ -1105,18 +1105,18 @@ func (a *UsersAPIService) UserPostExecute(r ApiUserPostRequest) (*User, *http.Re
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserPutRequest struct {
+type UsersAPIUserPutRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userPutRequest *UserPutRequest
 }
 
-func (r ApiUserPutRequest) UserPutRequest(userPutRequest UserPutRequest) ApiUserPutRequest {
+func (r UsersAPIUserPutRequest) UserPutRequest(userPutRequest UserPutRequest) UsersAPIUserPutRequest {
 	r.userPutRequest = &userPutRequest
 	return r
 }
 
-func (r ApiUserPutRequest) Execute() ([]User, *http.Response, error) {
+func (r UsersAPIUserPutRequest) Execute() ([]User, *http.Response, error) {
 	return r.ApiService.UserPutExecute(r)
 }
 
@@ -1129,10 +1129,10 @@ Requires the `MANAGE_USERS` permission.
 
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiUserPutRequest
+ @return UsersAPIUserPutRequest
 */
-func (a *UsersAPIService) UserPut(ctx context.Context) ApiUserPutRequest {
-	return ApiUserPutRequest{
+func (a *UsersAPIService) UserPut(ctx context.Context) UsersAPIUserPutRequest {
+	return UsersAPIUserPutRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
@@ -1140,7 +1140,7 @@ func (a *UsersAPIService) UserPut(ctx context.Context) ApiUserPutRequest {
 
 // Execute executes the request
 //  @return []User
-func (a *UsersAPIService) UserPutExecute(r ApiUserPutRequest) ([]User, *http.Response, error) {
+func (a *UsersAPIService) UserPutExecute(r UsersAPIUserPutRequest) ([]User, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPut
 		localVarPostBody     interface{}
@@ -1232,18 +1232,18 @@ func (a *UsersAPIService) UserPutExecute(r ApiUserPutRequest) ([]User, *http.Res
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserRegisterPushSubscriptionPostRequest struct {
+type UsersAPIUserRegisterPushSubscriptionPostRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userRegisterPushSubscriptionPostRequest *UserRegisterPushSubscriptionPostRequest
 }
 
-func (r ApiUserRegisterPushSubscriptionPostRequest) UserRegisterPushSubscriptionPostRequest(userRegisterPushSubscriptionPostRequest UserRegisterPushSubscriptionPostRequest) ApiUserRegisterPushSubscriptionPostRequest {
+func (r UsersAPIUserRegisterPushSubscriptionPostRequest) UserRegisterPushSubscriptionPostRequest(userRegisterPushSubscriptionPostRequest UserRegisterPushSubscriptionPostRequest) UsersAPIUserRegisterPushSubscriptionPostRequest {
 	r.userRegisterPushSubscriptionPostRequest = &userRegisterPushSubscriptionPostRequest
 	return r
 }
 
-func (r ApiUserRegisterPushSubscriptionPostRequest) Execute() (*http.Response, error) {
+func (r UsersAPIUserRegisterPushSubscriptionPostRequest) Execute() (*http.Response, error) {
 	return r.ApiService.UserRegisterPushSubscriptionPostExecute(r)
 }
 
@@ -1253,17 +1253,17 @@ UserRegisterPushSubscriptionPost Register a web push /user/registerPushSubscript
 Registers a web push subscription for the logged-in user
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiUserRegisterPushSubscriptionPostRequest
+ @return UsersAPIUserRegisterPushSubscriptionPostRequest
 */
-func (a *UsersAPIService) UserRegisterPushSubscriptionPost(ctx context.Context) ApiUserRegisterPushSubscriptionPostRequest {
-	return ApiUserRegisterPushSubscriptionPostRequest{
+func (a *UsersAPIService) UserRegisterPushSubscriptionPost(ctx context.Context) UsersAPIUserRegisterPushSubscriptionPostRequest {
+	return UsersAPIUserRegisterPushSubscriptionPostRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
 }
 
 // Execute executes the request
-func (a *UsersAPIService) UserRegisterPushSubscriptionPostExecute(r ApiUserRegisterPushSubscriptionPostRequest) (*http.Response, error) {
+func (a *UsersAPIService) UserRegisterPushSubscriptionPostExecute(r UsersAPIUserRegisterPushSubscriptionPostRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
@@ -1345,13 +1345,13 @@ func (a *UsersAPIService) UserRegisterPushSubscriptionPostExecute(r ApiUserRegis
 	return localVarHTTPResponse, nil
 }
 
-type ApiUserUserIdDeleteRequest struct {
+type UsersAPIUserUserIdDeleteRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userId float32
 }
 
-func (r ApiUserUserIdDeleteRequest) Execute() (*User, *http.Response, error) {
+func (r UsersAPIUserUserIdDeleteRequest) Execute() (*User, *http.Response, error) {
 	return r.ApiService.UserUserIdDeleteExecute(r)
 }
 
@@ -1362,10 +1362,10 @@ Deletes the user with the provided userId. Requires the `MANAGE_USERS` permissio
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param userId
- @return ApiUserUserIdDeleteRequest
+ @return UsersAPIUserUserIdDeleteRequest
 */
-func (a *UsersAPIService) UserUserIdDelete(ctx context.Context, userId float32) ApiUserUserIdDeleteRequest {
-	return ApiUserUserIdDeleteRequest{
+func (a *UsersAPIService) UserUserIdDelete(ctx context.Context, userId float32) UsersAPIUserUserIdDeleteRequest {
+	return UsersAPIUserUserIdDeleteRequest{
 		ApiService: a,
 		ctx: ctx,
 		userId: userId,
@@ -1374,7 +1374,7 @@ func (a *UsersAPIService) UserUserIdDelete(ctx context.Context, userId float32) 
 
 // Execute executes the request
 //  @return User
-func (a *UsersAPIService) UserUserIdDeleteExecute(r ApiUserUserIdDeleteRequest) (*User, *http.Response, error) {
+func (a *UsersAPIService) UserUserIdDeleteExecute(r UsersAPIUserUserIdDeleteRequest) (*User, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodDelete
 		localVarPostBody     interface{}
@@ -1462,13 +1462,13 @@ func (a *UsersAPIService) UserUserIdDeleteExecute(r ApiUserUserIdDeleteRequest) 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserUserIdGetRequest struct {
+type UsersAPIUserUserIdGetRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userId float32
 }
 
-func (r ApiUserUserIdGetRequest) Execute() (*User, *http.Response, error) {
+func (r UsersAPIUserUserIdGetRequest) Execute() (*User, *http.Response, error) {
 	return r.ApiService.UserUserIdGetExecute(r)
 }
 
@@ -1480,10 +1480,10 @@ Retrieves user details in a JSON object. Requires the `MANAGE_USERS` permission.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param userId
- @return ApiUserUserIdGetRequest
+ @return UsersAPIUserUserIdGetRequest
 */
-func (a *UsersAPIService) UserUserIdGet(ctx context.Context, userId float32) ApiUserUserIdGetRequest {
-	return ApiUserUserIdGetRequest{
+func (a *UsersAPIService) UserUserIdGet(ctx context.Context, userId float32) UsersAPIUserUserIdGetRequest {
+	return UsersAPIUserUserIdGetRequest{
 		ApiService: a,
 		ctx: ctx,
 		userId: userId,
@@ -1492,7 +1492,7 @@ func (a *UsersAPIService) UserUserIdGet(ctx context.Context, userId float32) Api
 
 // Execute executes the request
 //  @return User
-func (a *UsersAPIService) UserUserIdGetExecute(r ApiUserUserIdGetRequest) (*User, *http.Response, error) {
+func (a *UsersAPIService) UserUserIdGetExecute(r UsersAPIUserUserIdGetRequest) (*User, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodGet
 		localVarPostBody     interface{}
@@ -1580,19 +1580,19 @@ func (a *UsersAPIService) UserUserIdGetExecute(r ApiUserUserIdGetRequest) (*User
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserUserIdPutRequest struct {
+type UsersAPIUserUserIdPutRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userId float32
 	user *User
 }
 
-func (r ApiUserUserIdPutRequest) User(user User) ApiUserUserIdPutRequest {
+func (r UsersAPIUserUserIdPutRequest) User(user User) UsersAPIUserUserIdPutRequest {
 	r.user = &user
 	return r
 }
 
-func (r ApiUserUserIdPutRequest) Execute() (*User, *http.Response, error) {
+func (r UsersAPIUserUserIdPutRequest) Execute() (*User, *http.Response, error) {
 	return r.ApiService.UserUserIdPutExecute(r)
 }
 
@@ -1606,10 +1606,10 @@ Requires the `MANAGE_USERS` permission.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param userId
- @return ApiUserUserIdPutRequest
+ @return UsersAPIUserUserIdPutRequest
 */
-func (a *UsersAPIService) UserUserIdPut(ctx context.Context, userId float32) ApiUserUserIdPutRequest {
-	return ApiUserUserIdPutRequest{
+func (a *UsersAPIService) UserUserIdPut(ctx context.Context, userId float32) UsersAPIUserUserIdPutRequest {
+	return UsersAPIUserUserIdPutRequest{
 		ApiService: a,
 		ctx: ctx,
 		userId: userId,
@@ -1618,7 +1618,7 @@ func (a *UsersAPIService) UserUserIdPut(ctx context.Context, userId float32) Api
 
 // Execute executes the request
 //  @return User
-func (a *UsersAPIService) UserUserIdPutExecute(r ApiUserUserIdPutRequest) (*User, *http.Response, error) {
+func (a *UsersAPIService) UserUserIdPutExecute(r UsersAPIUserUserIdPutRequest) (*User, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPut
 		localVarPostBody     interface{}
@@ -1711,13 +1711,13 @@ func (a *UsersAPIService) UserUserIdPutExecute(r ApiUserUserIdPutRequest) (*User
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserUserIdQuotaGetRequest struct {
+type UsersAPIUserUserIdQuotaGetRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userId float32
 }
 
-func (r ApiUserUserIdQuotaGetRequest) Execute() (*UserUserIdQuotaGet200Response, *http.Response, error) {
+func (r UsersAPIUserUserIdQuotaGetRequest) Execute() (*UserUserIdQuotaGet200Response, *http.Response, error) {
 	return r.ApiService.UserUserIdQuotaGetExecute(r)
 }
 
@@ -1729,10 +1729,10 @@ Returns quota details for a user in a JSON object. Requires `MANAGE_USERS` permi
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param userId
- @return ApiUserUserIdQuotaGetRequest
+ @return UsersAPIUserUserIdQuotaGetRequest
 */
-func (a *UsersAPIService) UserUserIdQuotaGet(ctx context.Context, userId float32) ApiUserUserIdQuotaGetRequest {
-	return ApiUserUserIdQuotaGetRequest{
+func (a *UsersAPIService) UserUserIdQuotaGet(ctx context.Context, userId float32) UsersAPIUserUserIdQuotaGetRequest {
+	return UsersAPIUserUserIdQuotaGetRequest{
 		ApiService: a,
 		ctx: ctx,
 		userId: userId,
@@ -1741,7 +1741,7 @@ func (a *UsersAPIService) UserUserIdQuotaGet(ctx context.Context, userId float32
 
 // Execute executes the request
 //  @return UserUserIdQuotaGet200Response
-func (a *UsersAPIService) UserUserIdQuotaGetExecute(r ApiUserUserIdQuotaGetRequest) (*UserUserIdQuotaGet200Response, *http.Response, error) {
+func (a *UsersAPIService) UserUserIdQuotaGetExecute(r UsersAPIUserUserIdQuotaGetRequest) (*UserUserIdQuotaGet200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodGet
 		localVarPostBody     interface{}
@@ -1829,7 +1829,7 @@ func (a *UsersAPIService) UserUserIdQuotaGetExecute(r ApiUserUserIdQuotaGetReque
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserUserIdRequestsGetRequest struct {
+type UsersAPIUserUserIdRequestsGetRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userId float32
@@ -1837,17 +1837,17 @@ type ApiUserUserIdRequestsGetRequest struct {
 	skip *float32
 }
 
-func (r ApiUserUserIdRequestsGetRequest) Take(take float32) ApiUserUserIdRequestsGetRequest {
+func (r UsersAPIUserUserIdRequestsGetRequest) Take(take float32) UsersAPIUserUserIdRequestsGetRequest {
 	r.take = &take
 	return r
 }
 
-func (r ApiUserUserIdRequestsGetRequest) Skip(skip float32) ApiUserUserIdRequestsGetRequest {
+func (r UsersAPIUserUserIdRequestsGetRequest) Skip(skip float32) UsersAPIUserUserIdRequestsGetRequest {
 	r.skip = &skip
 	return r
 }
 
-func (r ApiUserUserIdRequestsGetRequest) Execute() (*UserUserIdRequestsGet200Response, *http.Response, error) {
+func (r UsersAPIUserUserIdRequestsGetRequest) Execute() (*UserUserIdRequestsGet200Response, *http.Response, error) {
 	return r.ApiService.UserUserIdRequestsGetExecute(r)
 }
 
@@ -1859,10 +1859,10 @@ Retrieves a user's requests in a JSON object.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param userId
- @return ApiUserUserIdRequestsGetRequest
+ @return UsersAPIUserUserIdRequestsGetRequest
 */
-func (a *UsersAPIService) UserUserIdRequestsGet(ctx context.Context, userId float32) ApiUserUserIdRequestsGetRequest {
-	return ApiUserUserIdRequestsGetRequest{
+func (a *UsersAPIService) UserUserIdRequestsGet(ctx context.Context, userId float32) UsersAPIUserUserIdRequestsGetRequest {
+	return UsersAPIUserUserIdRequestsGetRequest{
 		ApiService: a,
 		ctx: ctx,
 		userId: userId,
@@ -1871,7 +1871,7 @@ func (a *UsersAPIService) UserUserIdRequestsGet(ctx context.Context, userId floa
 
 // Execute executes the request
 //  @return UserUserIdRequestsGet200Response
-func (a *UsersAPIService) UserUserIdRequestsGetExecute(r ApiUserUserIdRequestsGetRequest) (*UserUserIdRequestsGet200Response, *http.Response, error) {
+func (a *UsersAPIService) UserUserIdRequestsGetExecute(r UsersAPIUserUserIdRequestsGetRequest) (*UserUserIdRequestsGet200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodGet
 		localVarPostBody     interface{}
@@ -1965,13 +1965,13 @@ func (a *UsersAPIService) UserUserIdRequestsGetExecute(r ApiUserUserIdRequestsGe
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserUserIdSettingsMainGetRequest struct {
+type UsersAPIUserUserIdSettingsMainGetRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userId float32
 }
 
-func (r ApiUserUserIdSettingsMainGetRequest) Execute() (*UserUserIdSettingsMainGet200Response, *http.Response, error) {
+func (r UsersAPIUserUserIdSettingsMainGetRequest) Execute() (*UserUserIdSettingsMainGet200Response, *http.Response, error) {
 	return r.ApiService.UserUserIdSettingsMainGetExecute(r)
 }
 
@@ -1982,10 +1982,10 @@ Returns general settings for a specific user. Requires `MANAGE_USERS` permission
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param userId
- @return ApiUserUserIdSettingsMainGetRequest
+ @return UsersAPIUserUserIdSettingsMainGetRequest
 */
-func (a *UsersAPIService) UserUserIdSettingsMainGet(ctx context.Context, userId float32) ApiUserUserIdSettingsMainGetRequest {
-	return ApiUserUserIdSettingsMainGetRequest{
+func (a *UsersAPIService) UserUserIdSettingsMainGet(ctx context.Context, userId float32) UsersAPIUserUserIdSettingsMainGetRequest {
+	return UsersAPIUserUserIdSettingsMainGetRequest{
 		ApiService: a,
 		ctx: ctx,
 		userId: userId,
@@ -1994,7 +1994,7 @@ func (a *UsersAPIService) UserUserIdSettingsMainGet(ctx context.Context, userId 
 
 // Execute executes the request
 //  @return UserUserIdSettingsMainGet200Response
-func (a *UsersAPIService) UserUserIdSettingsMainGetExecute(r ApiUserUserIdSettingsMainGetRequest) (*UserUserIdSettingsMainGet200Response, *http.Response, error) {
+func (a *UsersAPIService) UserUserIdSettingsMainGetExecute(r UsersAPIUserUserIdSettingsMainGetRequest) (*UserUserIdSettingsMainGet200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodGet
 		localVarPostBody     interface{}
@@ -2082,19 +2082,19 @@ func (a *UsersAPIService) UserUserIdSettingsMainGetExecute(r ApiUserUserIdSettin
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserUserIdSettingsMainPostRequest struct {
+type UsersAPIUserUserIdSettingsMainPostRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userId float32
 	userUserIdSettingsMainPostRequest *UserUserIdSettingsMainPostRequest
 }
 
-func (r ApiUserUserIdSettingsMainPostRequest) UserUserIdSettingsMainPostRequest(userUserIdSettingsMainPostRequest UserUserIdSettingsMainPostRequest) ApiUserUserIdSettingsMainPostRequest {
+func (r UsersAPIUserUserIdSettingsMainPostRequest) UserUserIdSettingsMainPostRequest(userUserIdSettingsMainPostRequest UserUserIdSettingsMainPostRequest) UsersAPIUserUserIdSettingsMainPostRequest {
 	r.userUserIdSettingsMainPostRequest = &userUserIdSettingsMainPostRequest
 	return r
 }
 
-func (r ApiUserUserIdSettingsMainPostRequest) Execute() (*UserUserIdSettingsMainGet200Response, *http.Response, error) {
+func (r UsersAPIUserUserIdSettingsMainPostRequest) Execute() (*UserUserIdSettingsMainGet200Response, *http.Response, error) {
 	return r.ApiService.UserUserIdSettingsMainPostExecute(r)
 }
 
@@ -2105,10 +2105,10 @@ Updates and returns general settings for a specific user. Requires `MANAGE_USERS
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param userId
- @return ApiUserUserIdSettingsMainPostRequest
+ @return UsersAPIUserUserIdSettingsMainPostRequest
 */
-func (a *UsersAPIService) UserUserIdSettingsMainPost(ctx context.Context, userId float32) ApiUserUserIdSettingsMainPostRequest {
-	return ApiUserUserIdSettingsMainPostRequest{
+func (a *UsersAPIService) UserUserIdSettingsMainPost(ctx context.Context, userId float32) UsersAPIUserUserIdSettingsMainPostRequest {
+	return UsersAPIUserUserIdSettingsMainPostRequest{
 		ApiService: a,
 		ctx: ctx,
 		userId: userId,
@@ -2117,7 +2117,7 @@ func (a *UsersAPIService) UserUserIdSettingsMainPost(ctx context.Context, userId
 
 // Execute executes the request
 //  @return UserUserIdSettingsMainGet200Response
-func (a *UsersAPIService) UserUserIdSettingsMainPostExecute(r ApiUserUserIdSettingsMainPostRequest) (*UserUserIdSettingsMainGet200Response, *http.Response, error) {
+func (a *UsersAPIService) UserUserIdSettingsMainPostExecute(r UsersAPIUserUserIdSettingsMainPostRequest) (*UserUserIdSettingsMainGet200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
@@ -2210,13 +2210,13 @@ func (a *UsersAPIService) UserUserIdSettingsMainPostExecute(r ApiUserUserIdSetti
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserUserIdSettingsNotificationsGetRequest struct {
+type UsersAPIUserUserIdSettingsNotificationsGetRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userId float32
 }
 
-func (r ApiUserUserIdSettingsNotificationsGetRequest) Execute() (*UserSettingsNotifications, *http.Response, error) {
+func (r UsersAPIUserUserIdSettingsNotificationsGetRequest) Execute() (*UserSettingsNotifications, *http.Response, error) {
 	return r.ApiService.UserUserIdSettingsNotificationsGetExecute(r)
 }
 
@@ -2227,10 +2227,10 @@ Returns notification settings for a specific user. Requires `MANAGE_USERS` permi
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param userId
- @return ApiUserUserIdSettingsNotificationsGetRequest
+ @return UsersAPIUserUserIdSettingsNotificationsGetRequest
 */
-func (a *UsersAPIService) UserUserIdSettingsNotificationsGet(ctx context.Context, userId float32) ApiUserUserIdSettingsNotificationsGetRequest {
-	return ApiUserUserIdSettingsNotificationsGetRequest{
+func (a *UsersAPIService) UserUserIdSettingsNotificationsGet(ctx context.Context, userId float32) UsersAPIUserUserIdSettingsNotificationsGetRequest {
+	return UsersAPIUserUserIdSettingsNotificationsGetRequest{
 		ApiService: a,
 		ctx: ctx,
 		userId: userId,
@@ -2239,7 +2239,7 @@ func (a *UsersAPIService) UserUserIdSettingsNotificationsGet(ctx context.Context
 
 // Execute executes the request
 //  @return UserSettingsNotifications
-func (a *UsersAPIService) UserUserIdSettingsNotificationsGetExecute(r ApiUserUserIdSettingsNotificationsGetRequest) (*UserSettingsNotifications, *http.Response, error) {
+func (a *UsersAPIService) UserUserIdSettingsNotificationsGetExecute(r UsersAPIUserUserIdSettingsNotificationsGetRequest) (*UserSettingsNotifications, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodGet
 		localVarPostBody     interface{}
@@ -2327,19 +2327,19 @@ func (a *UsersAPIService) UserUserIdSettingsNotificationsGetExecute(r ApiUserUse
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserUserIdSettingsNotificationsPostRequest struct {
+type UsersAPIUserUserIdSettingsNotificationsPostRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userId float32
 	userSettingsNotifications *UserSettingsNotifications
 }
 
-func (r ApiUserUserIdSettingsNotificationsPostRequest) UserSettingsNotifications(userSettingsNotifications UserSettingsNotifications) ApiUserUserIdSettingsNotificationsPostRequest {
+func (r UsersAPIUserUserIdSettingsNotificationsPostRequest) UserSettingsNotifications(userSettingsNotifications UserSettingsNotifications) UsersAPIUserUserIdSettingsNotificationsPostRequest {
 	r.userSettingsNotifications = &userSettingsNotifications
 	return r
 }
 
-func (r ApiUserUserIdSettingsNotificationsPostRequest) Execute() (*UserSettingsNotifications, *http.Response, error) {
+func (r UsersAPIUserUserIdSettingsNotificationsPostRequest) Execute() (*UserSettingsNotifications, *http.Response, error) {
 	return r.ApiService.UserUserIdSettingsNotificationsPostExecute(r)
 }
 
@@ -2350,10 +2350,10 @@ Updates and returns notification settings for a specific user. Requires `MANAGE_
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param userId
- @return ApiUserUserIdSettingsNotificationsPostRequest
+ @return UsersAPIUserUserIdSettingsNotificationsPostRequest
 */
-func (a *UsersAPIService) UserUserIdSettingsNotificationsPost(ctx context.Context, userId float32) ApiUserUserIdSettingsNotificationsPostRequest {
-	return ApiUserUserIdSettingsNotificationsPostRequest{
+func (a *UsersAPIService) UserUserIdSettingsNotificationsPost(ctx context.Context, userId float32) UsersAPIUserUserIdSettingsNotificationsPostRequest {
+	return UsersAPIUserUserIdSettingsNotificationsPostRequest{
 		ApiService: a,
 		ctx: ctx,
 		userId: userId,
@@ -2362,7 +2362,7 @@ func (a *UsersAPIService) UserUserIdSettingsNotificationsPost(ctx context.Contex
 
 // Execute executes the request
 //  @return UserSettingsNotifications
-func (a *UsersAPIService) UserUserIdSettingsNotificationsPostExecute(r ApiUserUserIdSettingsNotificationsPostRequest) (*UserSettingsNotifications, *http.Response, error) {
+func (a *UsersAPIService) UserUserIdSettingsNotificationsPostExecute(r UsersAPIUserUserIdSettingsNotificationsPostRequest) (*UserSettingsNotifications, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
@@ -2455,13 +2455,13 @@ func (a *UsersAPIService) UserUserIdSettingsNotificationsPostExecute(r ApiUserUs
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserUserIdSettingsPasswordGetRequest struct {
+type UsersAPIUserUserIdSettingsPasswordGetRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userId float32
 }
 
-func (r ApiUserUserIdSettingsPasswordGetRequest) Execute() (*UserUserIdSettingsPasswordGet200Response, *http.Response, error) {
+func (r UsersAPIUserUserIdSettingsPasswordGetRequest) Execute() (*UserUserIdSettingsPasswordGet200Response, *http.Response, error) {
 	return r.ApiService.UserUserIdSettingsPasswordGetExecute(r)
 }
 
@@ -2472,10 +2472,10 @@ Returns important data for the password page to function correctly. Requires `MA
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param userId
- @return ApiUserUserIdSettingsPasswordGetRequest
+ @return UsersAPIUserUserIdSettingsPasswordGetRequest
 */
-func (a *UsersAPIService) UserUserIdSettingsPasswordGet(ctx context.Context, userId float32) ApiUserUserIdSettingsPasswordGetRequest {
-	return ApiUserUserIdSettingsPasswordGetRequest{
+func (a *UsersAPIService) UserUserIdSettingsPasswordGet(ctx context.Context, userId float32) UsersAPIUserUserIdSettingsPasswordGetRequest {
+	return UsersAPIUserUserIdSettingsPasswordGetRequest{
 		ApiService: a,
 		ctx: ctx,
 		userId: userId,
@@ -2484,7 +2484,7 @@ func (a *UsersAPIService) UserUserIdSettingsPasswordGet(ctx context.Context, use
 
 // Execute executes the request
 //  @return UserUserIdSettingsPasswordGet200Response
-func (a *UsersAPIService) UserUserIdSettingsPasswordGetExecute(r ApiUserUserIdSettingsPasswordGetRequest) (*UserUserIdSettingsPasswordGet200Response, *http.Response, error) {
+func (a *UsersAPIService) UserUserIdSettingsPasswordGetExecute(r UsersAPIUserUserIdSettingsPasswordGetRequest) (*UserUserIdSettingsPasswordGet200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodGet
 		localVarPostBody     interface{}
@@ -2572,19 +2572,19 @@ func (a *UsersAPIService) UserUserIdSettingsPasswordGetExecute(r ApiUserUserIdSe
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserUserIdSettingsPasswordPostRequest struct {
+type UsersAPIUserUserIdSettingsPasswordPostRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userId float32
 	userUserIdSettingsPasswordPostRequest *UserUserIdSettingsPasswordPostRequest
 }
 
-func (r ApiUserUserIdSettingsPasswordPostRequest) UserUserIdSettingsPasswordPostRequest(userUserIdSettingsPasswordPostRequest UserUserIdSettingsPasswordPostRequest) ApiUserUserIdSettingsPasswordPostRequest {
+func (r UsersAPIUserUserIdSettingsPasswordPostRequest) UserUserIdSettingsPasswordPostRequest(userUserIdSettingsPasswordPostRequest UserUserIdSettingsPasswordPostRequest) UsersAPIUserUserIdSettingsPasswordPostRequest {
 	r.userUserIdSettingsPasswordPostRequest = &userUserIdSettingsPasswordPostRequest
 	return r
 }
 
-func (r ApiUserUserIdSettingsPasswordPostRequest) Execute() (*http.Response, error) {
+func (r UsersAPIUserUserIdSettingsPasswordPostRequest) Execute() (*http.Response, error) {
 	return r.ApiService.UserUserIdSettingsPasswordPostExecute(r)
 }
 
@@ -2595,10 +2595,10 @@ Updates a user's password. Requires `MANAGE_USERS` permission if editing other u
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param userId
- @return ApiUserUserIdSettingsPasswordPostRequest
+ @return UsersAPIUserUserIdSettingsPasswordPostRequest
 */
-func (a *UsersAPIService) UserUserIdSettingsPasswordPost(ctx context.Context, userId float32) ApiUserUserIdSettingsPasswordPostRequest {
-	return ApiUserUserIdSettingsPasswordPostRequest{
+func (a *UsersAPIService) UserUserIdSettingsPasswordPost(ctx context.Context, userId float32) UsersAPIUserUserIdSettingsPasswordPostRequest {
+	return UsersAPIUserUserIdSettingsPasswordPostRequest{
 		ApiService: a,
 		ctx: ctx,
 		userId: userId,
@@ -2606,7 +2606,7 @@ func (a *UsersAPIService) UserUserIdSettingsPasswordPost(ctx context.Context, us
 }
 
 // Execute executes the request
-func (a *UsersAPIService) UserUserIdSettingsPasswordPostExecute(r ApiUserUserIdSettingsPasswordPostRequest) (*http.Response, error) {
+func (a *UsersAPIService) UserUserIdSettingsPasswordPostExecute(r UsersAPIUserUserIdSettingsPasswordPostRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
@@ -2689,13 +2689,13 @@ func (a *UsersAPIService) UserUserIdSettingsPasswordPostExecute(r ApiUserUserIdS
 	return localVarHTTPResponse, nil
 }
 
-type ApiUserUserIdSettingsPermissionsGetRequest struct {
+type UsersAPIUserUserIdSettingsPermissionsGetRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userId float32
 }
 
-func (r ApiUserUserIdSettingsPermissionsGetRequest) Execute() (*UserUserIdSettingsPermissionsGet200Response, *http.Response, error) {
+func (r UsersAPIUserUserIdSettingsPermissionsGetRequest) Execute() (*UserUserIdSettingsPermissionsGet200Response, *http.Response, error) {
 	return r.ApiService.UserUserIdSettingsPermissionsGetExecute(r)
 }
 
@@ -2706,10 +2706,10 @@ Returns permission settings for a specific user. Requires `MANAGE_USERS` permiss
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param userId
- @return ApiUserUserIdSettingsPermissionsGetRequest
+ @return UsersAPIUserUserIdSettingsPermissionsGetRequest
 */
-func (a *UsersAPIService) UserUserIdSettingsPermissionsGet(ctx context.Context, userId float32) ApiUserUserIdSettingsPermissionsGetRequest {
-	return ApiUserUserIdSettingsPermissionsGetRequest{
+func (a *UsersAPIService) UserUserIdSettingsPermissionsGet(ctx context.Context, userId float32) UsersAPIUserUserIdSettingsPermissionsGetRequest {
+	return UsersAPIUserUserIdSettingsPermissionsGetRequest{
 		ApiService: a,
 		ctx: ctx,
 		userId: userId,
@@ -2718,7 +2718,7 @@ func (a *UsersAPIService) UserUserIdSettingsPermissionsGet(ctx context.Context, 
 
 // Execute executes the request
 //  @return UserUserIdSettingsPermissionsGet200Response
-func (a *UsersAPIService) UserUserIdSettingsPermissionsGetExecute(r ApiUserUserIdSettingsPermissionsGetRequest) (*UserUserIdSettingsPermissionsGet200Response, *http.Response, error) {
+func (a *UsersAPIService) UserUserIdSettingsPermissionsGetExecute(r UsersAPIUserUserIdSettingsPermissionsGetRequest) (*UserUserIdSettingsPermissionsGet200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodGet
 		localVarPostBody     interface{}
@@ -2806,19 +2806,19 @@ func (a *UsersAPIService) UserUserIdSettingsPermissionsGetExecute(r ApiUserUserI
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserUserIdSettingsPermissionsPostRequest struct {
+type UsersAPIUserUserIdSettingsPermissionsPostRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userId float32
 	userUserIdSettingsPermissionsPostRequest *UserUserIdSettingsPermissionsPostRequest
 }
 
-func (r ApiUserUserIdSettingsPermissionsPostRequest) UserUserIdSettingsPermissionsPostRequest(userUserIdSettingsPermissionsPostRequest UserUserIdSettingsPermissionsPostRequest) ApiUserUserIdSettingsPermissionsPostRequest {
+func (r UsersAPIUserUserIdSettingsPermissionsPostRequest) UserUserIdSettingsPermissionsPostRequest(userUserIdSettingsPermissionsPostRequest UserUserIdSettingsPermissionsPostRequest) UsersAPIUserUserIdSettingsPermissionsPostRequest {
 	r.userUserIdSettingsPermissionsPostRequest = &userUserIdSettingsPermissionsPostRequest
 	return r
 }
 
-func (r ApiUserUserIdSettingsPermissionsPostRequest) Execute() (*UserUserIdSettingsPermissionsGet200Response, *http.Response, error) {
+func (r UsersAPIUserUserIdSettingsPermissionsPostRequest) Execute() (*UserUserIdSettingsPermissionsGet200Response, *http.Response, error) {
 	return r.ApiService.UserUserIdSettingsPermissionsPostExecute(r)
 }
 
@@ -2829,10 +2829,10 @@ Updates and returns permission settings for a specific user. Requires `MANAGE_US
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param userId
- @return ApiUserUserIdSettingsPermissionsPostRequest
+ @return UsersAPIUserUserIdSettingsPermissionsPostRequest
 */
-func (a *UsersAPIService) UserUserIdSettingsPermissionsPost(ctx context.Context, userId float32) ApiUserUserIdSettingsPermissionsPostRequest {
-	return ApiUserUserIdSettingsPermissionsPostRequest{
+func (a *UsersAPIService) UserUserIdSettingsPermissionsPost(ctx context.Context, userId float32) UsersAPIUserUserIdSettingsPermissionsPostRequest {
+	return UsersAPIUserUserIdSettingsPermissionsPostRequest{
 		ApiService: a,
 		ctx: ctx,
 		userId: userId,
@@ -2841,7 +2841,7 @@ func (a *UsersAPIService) UserUserIdSettingsPermissionsPost(ctx context.Context,
 
 // Execute executes the request
 //  @return UserUserIdSettingsPermissionsGet200Response
-func (a *UsersAPIService) UserUserIdSettingsPermissionsPostExecute(r ApiUserUserIdSettingsPermissionsPostRequest) (*UserUserIdSettingsPermissionsGet200Response, *http.Response, error) {
+func (a *UsersAPIService) UserUserIdSettingsPermissionsPostExecute(r UsersAPIUserUserIdSettingsPermissionsPostRequest) (*UserUserIdSettingsPermissionsGet200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
@@ -2934,13 +2934,13 @@ func (a *UsersAPIService) UserUserIdSettingsPermissionsPostExecute(r ApiUserUser
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserUserIdWatchDataGetRequest struct {
+type UsersAPIUserUserIdWatchDataGetRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userId float32
 }
 
-func (r ApiUserUserIdWatchDataGetRequest) Execute() (*UserUserIdWatchDataGet200Response, *http.Response, error) {
+func (r UsersAPIUserUserIdWatchDataGetRequest) Execute() (*UserUserIdWatchDataGet200Response, *http.Response, error) {
 	return r.ApiService.UserUserIdWatchDataGetExecute(r)
 }
 
@@ -2954,10 +2954,10 @@ Requires the `ADMIN` permission to fetch results for other users.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param userId
- @return ApiUserUserIdWatchDataGetRequest
+ @return UsersAPIUserUserIdWatchDataGetRequest
 */
-func (a *UsersAPIService) UserUserIdWatchDataGet(ctx context.Context, userId float32) ApiUserUserIdWatchDataGetRequest {
-	return ApiUserUserIdWatchDataGetRequest{
+func (a *UsersAPIService) UserUserIdWatchDataGet(ctx context.Context, userId float32) UsersAPIUserUserIdWatchDataGetRequest {
+	return UsersAPIUserUserIdWatchDataGetRequest{
 		ApiService: a,
 		ctx: ctx,
 		userId: userId,
@@ -2966,7 +2966,7 @@ func (a *UsersAPIService) UserUserIdWatchDataGet(ctx context.Context, userId flo
 
 // Execute executes the request
 //  @return UserUserIdWatchDataGet200Response
-func (a *UsersAPIService) UserUserIdWatchDataGetExecute(r ApiUserUserIdWatchDataGetRequest) (*UserUserIdWatchDataGet200Response, *http.Response, error) {
+func (a *UsersAPIService) UserUserIdWatchDataGetExecute(r UsersAPIUserUserIdWatchDataGetRequest) (*UserUserIdWatchDataGet200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodGet
 		localVarPostBody     interface{}
@@ -3054,19 +3054,19 @@ func (a *UsersAPIService) UserUserIdWatchDataGetExecute(r ApiUserUserIdWatchData
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiUserUserIdWatchlistGetRequest struct {
+type UsersAPIUserUserIdWatchlistGetRequest struct {
 	ctx context.Context
 	ApiService *UsersAPIService
 	userId float32
 	page *float32
 }
 
-func (r ApiUserUserIdWatchlistGetRequest) Page(page float32) ApiUserUserIdWatchlistGetRequest {
+func (r UsersAPIUserUserIdWatchlistGetRequest) Page(page float32) UsersAPIUserUserIdWatchlistGetRequest {
 	r.page = &page
 	return r
 }
 
-func (r ApiUserUserIdWatchlistGetRequest) Execute() (*UserUserIdWatchlistGet200Response, *http.Response, error) {
+func (r UsersAPIUserUserIdWatchlistGetRequest) Execute() (*UserUserIdWatchlistGet200Response, *http.Response, error) {
 	return r.ApiService.UserUserIdWatchlistGetExecute(r)
 }
 
@@ -3078,10 +3078,10 @@ Retrieves a user's Plex Watchlist in a JSON object.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @param userId
- @return ApiUserUserIdWatchlistGetRequest
+ @return UsersAPIUserUserIdWatchlistGetRequest
 */
-func (a *UsersAPIService) UserUserIdWatchlistGet(ctx context.Context, userId float32) ApiUserUserIdWatchlistGetRequest {
-	return ApiUserUserIdWatchlistGetRequest{
+func (a *UsersAPIService) UserUserIdWatchlistGet(ctx context.Context, userId float32) UsersAPIUserUserIdWatchlistGetRequest {
+	return UsersAPIUserUserIdWatchlistGetRequest{
 		ApiService: a,
 		ctx: ctx,
 		userId: userId,
@@ -3090,7 +3090,7 @@ func (a *UsersAPIService) UserUserIdWatchlistGet(ctx context.Context, userId flo
 
 // Execute executes the request
 //  @return UserUserIdWatchlistGet200Response
-func (a *UsersAPIService) UserUserIdWatchlistGetExecute(r ApiUserUserIdWatchlistGetRequest) (*UserUserIdWatchlistGet200Response, *http.Response, error) {
+func (a *UsersAPIService) UserUserIdWatchlistGetExecute(r UsersAPIUserUserIdWatchlistGetRequest) (*UserUserIdWatchlistGet200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodGet
 		localVarPostBody     interface{}

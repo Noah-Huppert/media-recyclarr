@@ -22,18 +22,18 @@ import (
 // AuthAPIService AuthAPI service
 type AuthAPIService service
 
-type ApiAuthJellyfinPostRequest struct {
+type AuthAPIAuthJellyfinPostRequest struct {
 	ctx context.Context
 	ApiService *AuthAPIService
 	authJellyfinPostRequest *AuthJellyfinPostRequest
 }
 
-func (r ApiAuthJellyfinPostRequest) AuthJellyfinPostRequest(authJellyfinPostRequest AuthJellyfinPostRequest) ApiAuthJellyfinPostRequest {
+func (r AuthAPIAuthJellyfinPostRequest) AuthJellyfinPostRequest(authJellyfinPostRequest AuthJellyfinPostRequest) AuthAPIAuthJellyfinPostRequest {
 	r.authJellyfinPostRequest = &authJellyfinPostRequest
 	return r
 }
 
-func (r ApiAuthJellyfinPostRequest) Execute() (*User, *http.Response, error) {
+func (r AuthAPIAuthJellyfinPostRequest) Execute() (*User, *http.Response, error) {
 	return r.ApiService.AuthJellyfinPostExecute(r)
 }
 
@@ -43,10 +43,10 @@ AuthJellyfinPost Sign in using a Jellyfin username and password
 Takes the user's username and password to log the user in. Generates a session cookie for use in further requests. If the user does not exist, and there are no other users, then a user will be created with full admin privileges. If a user logs in with access to the Jellyfin server, they will also have an account created, but without any permissions.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiAuthJellyfinPostRequest
+ @return AuthAPIAuthJellyfinPostRequest
 */
-func (a *AuthAPIService) AuthJellyfinPost(ctx context.Context) ApiAuthJellyfinPostRequest {
-	return ApiAuthJellyfinPostRequest{
+func (a *AuthAPIService) AuthJellyfinPost(ctx context.Context) AuthAPIAuthJellyfinPostRequest {
+	return AuthAPIAuthJellyfinPostRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
@@ -54,7 +54,7 @@ func (a *AuthAPIService) AuthJellyfinPost(ctx context.Context) ApiAuthJellyfinPo
 
 // Execute executes the request
 //  @return User
-func (a *AuthAPIService) AuthJellyfinPostExecute(r ApiAuthJellyfinPostRequest) (*User, *http.Response, error) {
+func (a *AuthAPIService) AuthJellyfinPostExecute(r AuthAPIAuthJellyfinPostRequest) (*User, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
@@ -132,18 +132,18 @@ func (a *AuthAPIService) AuthJellyfinPostExecute(r ApiAuthJellyfinPostRequest) (
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiAuthLocalPostRequest struct {
+type AuthAPIAuthLocalPostRequest struct {
 	ctx context.Context
 	ApiService *AuthAPIService
 	authLocalPostRequest *AuthLocalPostRequest
 }
 
-func (r ApiAuthLocalPostRequest) AuthLocalPostRequest(authLocalPostRequest AuthLocalPostRequest) ApiAuthLocalPostRequest {
+func (r AuthAPIAuthLocalPostRequest) AuthLocalPostRequest(authLocalPostRequest AuthLocalPostRequest) AuthAPIAuthLocalPostRequest {
 	r.authLocalPostRequest = &authLocalPostRequest
 	return r
 }
 
-func (r ApiAuthLocalPostRequest) Execute() (*User, *http.Response, error) {
+func (r AuthAPIAuthLocalPostRequest) Execute() (*User, *http.Response, error) {
 	return r.ApiService.AuthLocalPostExecute(r)
 }
 
@@ -153,10 +153,10 @@ AuthLocalPost Sign in using a local account
 Takes an `email` and a `password` to log the user in. Generates a session cookie for use in further requests.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiAuthLocalPostRequest
+ @return AuthAPIAuthLocalPostRequest
 */
-func (a *AuthAPIService) AuthLocalPost(ctx context.Context) ApiAuthLocalPostRequest {
-	return ApiAuthLocalPostRequest{
+func (a *AuthAPIService) AuthLocalPost(ctx context.Context) AuthAPIAuthLocalPostRequest {
+	return AuthAPIAuthLocalPostRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
@@ -164,7 +164,7 @@ func (a *AuthAPIService) AuthLocalPost(ctx context.Context) ApiAuthLocalPostRequ
 
 // Execute executes the request
 //  @return User
-func (a *AuthAPIService) AuthLocalPostExecute(r ApiAuthLocalPostRequest) (*User, *http.Response, error) {
+func (a *AuthAPIService) AuthLocalPostExecute(r AuthAPIAuthLocalPostRequest) (*User, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
@@ -242,12 +242,12 @@ func (a *AuthAPIService) AuthLocalPostExecute(r ApiAuthLocalPostRequest) (*User,
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiAuthLogoutPostRequest struct {
+type AuthAPIAuthLogoutPostRequest struct {
 	ctx context.Context
 	ApiService *AuthAPIService
 }
 
-func (r ApiAuthLogoutPostRequest) Execute() (*AuthLogoutPost200Response, *http.Response, error) {
+func (r AuthAPIAuthLogoutPostRequest) Execute() (*AuthLogoutPost200Response, *http.Response, error) {
 	return r.ApiService.AuthLogoutPostExecute(r)
 }
 
@@ -257,10 +257,10 @@ AuthLogoutPost Sign out and clear session cookie
 Completely clear the session cookie and associated values, effectively signing the user out.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiAuthLogoutPostRequest
+ @return AuthAPIAuthLogoutPostRequest
 */
-func (a *AuthAPIService) AuthLogoutPost(ctx context.Context) ApiAuthLogoutPostRequest {
-	return ApiAuthLogoutPostRequest{
+func (a *AuthAPIService) AuthLogoutPost(ctx context.Context) AuthAPIAuthLogoutPostRequest {
+	return AuthAPIAuthLogoutPostRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
@@ -268,7 +268,7 @@ func (a *AuthAPIService) AuthLogoutPost(ctx context.Context) ApiAuthLogoutPostRe
 
 // Execute executes the request
 //  @return AuthLogoutPost200Response
-func (a *AuthAPIService) AuthLogoutPostExecute(r ApiAuthLogoutPostRequest) (*AuthLogoutPost200Response, *http.Response, error) {
+func (a *AuthAPIService) AuthLogoutPostExecute(r AuthAPIAuthLogoutPostRequest) (*AuthLogoutPost200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
@@ -355,12 +355,12 @@ func (a *AuthAPIService) AuthLogoutPostExecute(r ApiAuthLogoutPostRequest) (*Aut
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiAuthMeGetRequest struct {
+type AuthAPIAuthMeGetRequest struct {
 	ctx context.Context
 	ApiService *AuthAPIService
 }
 
-func (r ApiAuthMeGetRequest) Execute() (*User, *http.Response, error) {
+func (r AuthAPIAuthMeGetRequest) Execute() (*User, *http.Response, error) {
 	return r.ApiService.AuthMeGetExecute(r)
 }
 
@@ -370,10 +370,10 @@ AuthMeGet Get logged-in user
 Returns the currently logged-in user.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiAuthMeGetRequest
+ @return AuthAPIAuthMeGetRequest
 */
-func (a *AuthAPIService) AuthMeGet(ctx context.Context) ApiAuthMeGetRequest {
-	return ApiAuthMeGetRequest{
+func (a *AuthAPIService) AuthMeGet(ctx context.Context) AuthAPIAuthMeGetRequest {
+	return AuthAPIAuthMeGetRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
@@ -381,7 +381,7 @@ func (a *AuthAPIService) AuthMeGet(ctx context.Context) ApiAuthMeGetRequest {
 
 // Execute executes the request
 //  @return User
-func (a *AuthAPIService) AuthMeGetExecute(r ApiAuthMeGetRequest) (*User, *http.Response, error) {
+func (a *AuthAPIService) AuthMeGetExecute(r AuthAPIAuthMeGetRequest) (*User, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodGet
 		localVarPostBody     interface{}
@@ -468,18 +468,18 @@ func (a *AuthAPIService) AuthMeGetExecute(r ApiAuthMeGetRequest) (*User, *http.R
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiAuthPlexPostRequest struct {
+type AuthAPIAuthPlexPostRequest struct {
 	ctx context.Context
 	ApiService *AuthAPIService
 	authPlexPostRequest *AuthPlexPostRequest
 }
 
-func (r ApiAuthPlexPostRequest) AuthPlexPostRequest(authPlexPostRequest AuthPlexPostRequest) ApiAuthPlexPostRequest {
+func (r AuthAPIAuthPlexPostRequest) AuthPlexPostRequest(authPlexPostRequest AuthPlexPostRequest) AuthAPIAuthPlexPostRequest {
 	r.authPlexPostRequest = &authPlexPostRequest
 	return r
 }
 
-func (r ApiAuthPlexPostRequest) Execute() (*User, *http.Response, error) {
+func (r AuthAPIAuthPlexPostRequest) Execute() (*User, *http.Response, error) {
 	return r.ApiService.AuthPlexPostExecute(r)
 }
 
@@ -489,10 +489,10 @@ AuthPlexPost Sign in using a Plex token
 Takes an `authToken` (Plex token) to log the user in. Generates a session cookie for use in further requests. If the user does not exist, and there are no other users, then a user will be created with full admin privileges. If a user logs in with access to the main Plex server, they will also have an account created, but without any permissions.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ApiAuthPlexPostRequest
+ @return AuthAPIAuthPlexPostRequest
 */
-func (a *AuthAPIService) AuthPlexPost(ctx context.Context) ApiAuthPlexPostRequest {
-	return ApiAuthPlexPostRequest{
+func (a *AuthAPIService) AuthPlexPost(ctx context.Context) AuthAPIAuthPlexPostRequest {
+	return AuthAPIAuthPlexPostRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
@@ -500,7 +500,7 @@ func (a *AuthAPIService) AuthPlexPost(ctx context.Context) ApiAuthPlexPostReques
 
 // Execute executes the request
 //  @return User
-func (a *AuthAPIService) AuthPlexPostExecute(r ApiAuthPlexPostRequest) (*User, *http.Response, error) {
+func (a *AuthAPIService) AuthPlexPostExecute(r AuthAPIAuthPlexPostRequest) (*User, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
