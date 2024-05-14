@@ -1,0 +1,18 @@
+generatorName: go
+inputSpec: ./embyclient/openapi/openapi.json
+outputDir: ./embyclient/
+packageName: embyclient
+
+gitHost: github.com
+gitUserId: Noah-Huppert
+gitRepoId: media-recyclarr
+
+validateSpec: False
+modelNamePrefix: Model
+#modelPackage: embyclient_models
+
+# Go generator
+isGoSubmodule: True
+withGoMod: False
+structPrefix: True
+enumClassPrefix: True
