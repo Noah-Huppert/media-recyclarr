@@ -44,27 +44,43 @@ func NewJellyseerrManager(opts NewJellyseerrManagerOpts) (*JellyseerrManager, er
 	}, nil
 }
 
+// getMediaRequests calls the jellyseerr get media requests endpoint
+func (jellyMgr *JellyseerrManager) getMediaRequests(opts OpenAPIRequesterOpts[*jellyseerrclient.PageInfo]) (*OpenAPIRequesterResult[*jellyseerrclient.PageInfo, jellyseerrclient.MediaRequest], error) {
+	req := jellyMgr.apiClient.RequestAPI.RequestGet(opts.Ctx).Filter("available")
+
+	res, _, err := req.Take(float32(opts.PageSize)).Skip(float32(opts.PageSize * opts.PageNum)).Execute()
+	if err != nil {
+		return nil, err
+	}
+
+	return &OpenAPIRequesterResult[*jellyseerrclient.PageInfo, jellyseerrclient.MediaRequest]{
+		PageInfo: res.PageInfo,
+		Items:    res.Results,
+	}, nil
+}
+
 // GetRequestMedia retrieves all pieces of media which are available
 func (jellyMgr *JellyseerrManager) GetRequestMedia(ctx context.Context) ([]RequestedMedia, error) {
-	items, err := AllPages(AllPagesOpts[
-		jellyseerrclient.RequestAPIRequestGetRequest,
-		jellyseerrclient.UserUserIdRequestsGet200Response,
-		jellyseerrclient.MediaRequest,
-	]{
-		Req: jellyMgr.apiClient.RequestAPI.RequestGet(ctx),
-		ToOAPIResp: func(from jellyseerrclient.UserUserIdRequestsGet200Response) (*OpenAPIResponse[jellyseerrclient.MediaRequest], error) {
-			return &OpenAPIResponse[jellyseerrclient.MediaRequest]{
-				PageInfo: &OpenAPIResponsePageInfo{
-					Page:    from.PageInfo.Page,
-					Pages:   from.PageInfo.Pages,
-					Results: from.PageInfo.Results,
-				},
-				Results: from.Results,
-			}, nil
-		},
-	})
+	// Get requests from Jellyseerr
+	jellyItems, err := AllPages[*jellyseerrclient.PageInfo, jellyseerrclient.MediaRequest]{
+		Req: jellyMgr.getMediaRequests,
+	}.Execute(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get all pages: %s", err)
+		return nil, fmt.Errorf("failed to get requests from jellyseerr: %s", err)
+	}
+
+	// Tranform
+	reqMedia := []RequestedMedia{}
+
+	for _, item := range jellyItems {
+		var f jellyseerrclient.MediaRequest
+		var a jellyseerrclient.MediaInfo
+		var b jellyseerrclient.User
+
+		reqMedia = append(reqMedia, RequestedMedia{
+			JellyseerrID: item.Id,
+			EmbyID: item.Media.,
+		})
 	}
 
 	return nil, nil

@@ -1,106 +1,81 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"net/http"
 )
 
 // OpenAPIResponsePageInfo contains info about what page of results the response contains
-type OpenAPIResponsePageInfo struct {
+type OpenAPIResponsePageInfo interface {
 	// Page number response represents, starts at 1
-	Page *float32
+	GetPage() float32
 
 	// Pages is the total number of pages, starts at 1
-	Pages *float32
+	GetPages() float32
 
 	// Total number of results
-	Results *float32
+	GetResults() float32
 }
 
-// OpenAPIResponse is an Open API endpoint response
-type OpenAPIResponse[Item interface{}] struct {
-	// PageInfo is information about which page of results
-	PageInfo *OpenAPIResponsePageInfo
+// OpenAPIRequesterOpts are options provided to an OpenAPIRequester
+type OpenAPIRequesterOpts[PageInfo OpenAPIResponsePageInfo] struct {
+	// Ctx is the context used
+	Ctx context.Context
 
-	// Results is the page of data
-	Results []Item
+	// PageSize is the number of items to retrieve per page
+	PageSize int
+
+	// PageNum is the page to retrieve, starts at 0
+	PageNum int
 }
 
-// ToOpenAPIResponse converts an arbitrary type to an OpenAPIResponse
-type ToOpenAPIResponse[From interface{}, Item interface{}] func(from From) (*OpenAPIResponse[Item], error)
-
-// OpenAPIRequester defines methods provided by OpenAPI code generated requests
-type OpenAPIRequester[Chain interface{}, Resp interface{}] interface {
-	// Take specifies the number of results to return
-	Take(take float32) Chain
-
-	// Skip specifies the number of results to skip
-	Skip(skip float32) Chain
-
-	// Execute sends the request
-	Execute() (*Resp, *http.Response, error)
+// OpenAPIRequesterResult is the result of retrieving one page of an OpenAPI endpoint
+type OpenAPIRequesterResult[PageInfo OpenAPIResponsePageInfo, Item interface{}] struct {
+	PageInfo PageInfo
+	Items    []Item
 }
+
+// OpenAPIRequester retrieves one page from an OpenAPI endpoint
+type OpenAPIRequester[PageInfo OpenAPIResponsePageInfo, Item interface{}] func(opts OpenAPIRequesterOpts[PageInfo]) (*OpenAPIRequesterResult[PageInfo, Item], error)
 
 // AllPagesDefaultPageSize is the number of items per page for AllPages() if not specified in AllPagesOpts
 const AllPagesDefaultPageSize int = 20
 
-// AllPagesOpts are options for AllPages()
-type AllPagesOpts[
-	Chain interface{},
-	Resp interface{},
-	Item interface{},
-] struct {
+// AllPages keeps calling the OpenAPIRequester untl all pages have been consumed
+type AllPages[PageInfo OpenAPIResponsePageInfo, Item interface{}] struct {
 	// Req is the request builder
-	Req OpenAPIRequester[Chain, Resp]
-
-	// ToOAPIResp converts the endpoint's response to an OpenAPIResponse
-	ToOAPIResp ToOpenAPIResponse[Resp, Item]
+	Req OpenAPIRequester[PageInfo, Item]
 
 	// PageSize optionally indicates how many items should be retrieved per page
 	PageSize *int
 }
 
-// AllPages keeps calling an OpenAPIRequester until all pages have been consumed.
-// Type args:
-//
-// - Chain is the type used to build request options
-// - Resp is the endpoint's response type
-// - Item is a single item on a page returned by the endpoint
-func AllPages[
-	Chain interface{},
-	Resp interface{},
-	Item interface{},
-](opts AllPagesOpts[Chain, Resp, Item]) ([]Item, error) {
+// Execute performs the pagination
+func (p AllPages[PageInfo, Item]) Execute(ctx context.Context) ([]Item, error) {
+	// Setup request
 	pageSize := AllPagesDefaultPageSize
-	if opts.PageSize != nil {
-		pageSize = *opts.PageSize
+	if p.PageSize != nil {
+		pageSize = *p.PageSize
 	}
 
 	items := []Item{}
 
-	opts.Req.Take(float32(pageSize))
-
 	pageNum := 0
 	maxPage := 0
 	for maxPage == 0 || pageNum >= maxPage {
-		// Setup pagination
-		opts.Req.Skip(float32(pageNum * pageSize))
-
 		// Make request
-		aResp, _, err := opts.Req.Execute()
+		res, err := p.Req(OpenAPIRequesterOpts[PageInfo]{
+			PageSize: pageSize,
+			PageNum:  pageNum,
+		})
 		if err != nil {
 			return nil, fmt.Errorf("failed to make request for page %d: %s", pageNum, &err)
 		}
 
 		// Convert to OpenAPIResponse
-		oapiResp, err := opts.ToOAPIResp(*aResp)
-		if err != nil {
-			return nil, fmt.Errorf("failed to convert response for page %d into OpenAPIResponse: %s", pageNum, err)
-		}
+		items = append(items, res.Items...)
 
-		items = append(items, oapiResp.Results...)
-
-		maxPage = int(*oapiResp.PageInfo.Pages - 1)
+		maxPage = int(res.PageInfo.GetPages() - 1)
 		pageNum += 1
 	}
 

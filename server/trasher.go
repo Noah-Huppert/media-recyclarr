@@ -22,6 +22,9 @@ type User struct {
 
 // RequestedMedia represents a piece of media which exists because it was requested and retrieved
 type RequestedMedia struct {
+	// JellyseerrID is the ID of the request in Jellyseerr
+	JellyseerrID float32
+
 	// Name is the user friendly name of the media
 	Name string
 
