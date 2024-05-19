@@ -1,11 +1,6 @@
 package main
 
-import (
-	"context"
-	"fmt"
-)
-
-// OpenAPIResponsePageInfo contains info about what page of results the response contains
+/* // OpenAPIResponsePageInfo contains info about what page of results the response contains
 type OpenAPIResponsePageInfo interface {
 	// Page number response represents, starts at 1
 	GetPage() float32
@@ -80,4 +75,4 @@ func (p AllPages[PageInfo, Item]) Execute(ctx context.Context) ([]Item, error) {
 	}
 
 	return items, nil
-}
+} */
