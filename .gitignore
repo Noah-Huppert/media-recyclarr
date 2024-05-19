@@ -1,3 +1,6 @@
 ﻿# Jetbrains
 .idea/
 *.private.env.json
+
+# Secrets
+server/.env
