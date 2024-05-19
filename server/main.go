@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	stdLog "log"
+	"strings"
 
 	"github.com/Noah-Huppert/gointerrupt"
 	"github.com/Noah-Huppert/media-recyclarr/emby"
@@ -18,7 +19,15 @@ func main() {
 	if err != nil {
 		stdLog.Fatalf("failed to setup logger: %s", err)
 	}
-	defer log.Sync()
+	defer func() {
+		if err := log.Sync(); err != nil {
+			if strings.Contains(err.Error(), "invalid argument") {
+				// For some reason Sync() returns "invalid argument" when it successfully runs
+				return
+			}
+			stdLog.Fatalf("failed to sync logs: %s", err)
+		}
+	}()
 
 	// Load configuration
 	cfg, err := LoadConfig()
