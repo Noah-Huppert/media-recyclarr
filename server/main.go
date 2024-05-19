@@ -56,5 +56,5 @@ func main() {
 		JellyClient: jellyClient,
 	})
 
-	log.Debug("use these vars", zap.Any("embyMgr", embyMgr), zap.Any("jellyMgr", jellyMgr), zap.Any("ctxPair", ctxPair))
+	log.Debug("use these vars", zap.Any("trasher", trasher), zap.Any("ctxPair", ctxPair))
 }
