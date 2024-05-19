@@ -77,7 +77,7 @@ type RequestedMedia struct {
 
 // GetRequestedMedia returns RequestedMedia
 func (trasher *Trasher) GetRequestedMedia(ctx context.Context) ([]RequestedMedia, error) {
-	// Find media requests
+	// Find media requests in Jellyseerr
 	mediaRequests, err := trasher.jellyClient.GetAvailableMediaRequests(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get media requests: %s", err)
@@ -95,10 +95,11 @@ func (trasher *Trasher) GetRequestedMedia(ctx context.Context) ([]RequestedMedia
 		})
 	}
 
-	//
+	// Get watch status from Emby
+	return nil, nil
 }
 
 // GetExpiredMedia returns all RequestedMedia which has passed the expired deadline
 func (trasher *Trasher) GetExpiredMedia(ctx context.Context) ([]RequestedMedia, error) {
-
+	return nil, nil
 }
