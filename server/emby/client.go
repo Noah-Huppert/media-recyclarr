@@ -81,6 +81,10 @@ type UserMediaItem struct {
 	} `validate:"required"`
 }
 
+// TODO: GetMediaItems() /Items
+// TODO: ListUsers() /Users/Query
+// TODO: ListShowEpisodes() /Shows/{Id}/Episodes
+
 func (client *EmbyClient) GetUserMediaItems(ctx context.Context, userID string, ids []string) ([]UserMediaItem, error) {
 	if len(ids) == 0 {
 		return nil, fmt.Errorf("ids cannot be empty")

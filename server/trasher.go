@@ -95,6 +95,12 @@ func (trasher *Trasher) GetRequestedMedia(ctx context.Context) ([]RequestedMedia
 		})
 	}
 
+	// TODO: Get list of users from Emby
+	// TODO: Build tree of media items (call emby.ListShowEpisodes() for tv shows)
+	// TODO: Get watch status for every user for every media item
+	// TODO: Find newest watch time for every media item
+	// TODO: Find media items which haven't been watched recently enough
+
 	// Get watch status from Emby
 	return nil, nil
 }
