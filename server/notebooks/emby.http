@@ -7,7 +7,13 @@ X-Emby-Token: {{ api_key }}
 ### GET Items - For Noah - Dr Who
 # User ID = noah
 # Dr Who ID = 2405
-GET {{ uri }}/emby/Users/c6a110fe2fa54c1a9ba497bcf1d4cb91/Items?Recursive=true&ParentIds=2405&IncludeItemTypes=tv
+GET {{ uri }}/emby/Users/c6a110fe2fa54c1a9ba497bcf1d4cb91/Items?Ids=2405
+X-Emby-Token: {{ api_key }}
+
+### GET Items - For Noah - Dr Who S06
+# User ID = noah
+# Dr Who S06 = 4016
+GET {{ uri }}/emby/Users/c6a110fe2fa54c1a9ba497bcf1d4cb91/Items?Ids=4016
 X-Emby-Token: {{ api_key }}
 
 ### GET Items - For Noah - Dr Who S06E01
