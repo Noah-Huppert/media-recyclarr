@@ -1,7 +1,7 @@
 ﻿# https://swagger.emby.media/?url=https%3A%2F%2Fview.media.k8s.funkyboy.zone%2Femby%2Fopenapi%3FserverUrl%3Dhttps%253A%252F%252Fview.media.k8s.funkyboy.zone
 ### GET Items - Dr Who
 # Dr Who ID = 2405
-GET {{ uri }}/emby/Items?Recursive=true&Ids=2405
+GET {{ uri }}/emby/Items?Ids=2405
 X-Emby-Token: {{ api_key }}
 
 ### GET Items - For Noah - Dr Who
