@@ -54,24 +54,10 @@ type PaginatedResp[Item interface{}] struct {
 	Results  []Item   `json:"results" validate:"required"`
 }
 
-// MediaRequest is a request for media in Jellyseerr
-type MediaRequest struct {
-	ID    uint   `json:"id" validate:"required"`
-	Type  string `json:"type" validate:"required,oneof=movie tv"`
-	Media struct {
-		ID              uint      `json:"id" validate:"required"`
-		JellyfinMediaID string    `json:"jellyfindMediaId" validate:"required"`
-		MediaAddedAt    time.Time `json:"mediaAddedAt" validate:"required"`
-	} `json:"media" validate:"required"`
-	RequestedBy struct {
-		ID             uint   `json:"id" validate:"required"`
-		JellyfinUserID string `json:"jellyfinUserId" validate:"required"`
-	} `json:"requestedBy" validate:"required"`
-}
-
 // makePaginatedReq is a function which makes a request for a specific page of results
 type makePaginatedReq[Item interface{}] func(ctx context.Context, take int, skip int) (*PaginatedResp[Item], error)
 
+// GET_ALL_PAGES_PAGE_SIZE is the page size used in getAllPages()
 const GET_ALL_PAGES_PAGE_SIZE = 20
 
 // getAllPages of a paginated endpoint
@@ -97,6 +83,25 @@ func getAllPages[Item interface{}](ctx context.Context, makeReq makePaginatedReq
 	}
 
 	return items, nil
+}
+
+const (
+
+)
+
+// MediaRequest is a request for media in Jellyseerr
+type MediaRequest struct {
+	ID    uint   `json:"id" validate:"required"`
+	Type  string `json:"type" validate:"required,oneof=movie tv"`
+	Media struct {
+		ID              uint      `json:"id" validate:"required"`
+		JellyfinMediaID string    `json:"jellyfindMediaId" validate:"required"`
+		MediaAddedAt    time.Time `json:"mediaAddedAt" validate:"required"`
+	} `json:"media" validate:"required"`
+	RequestedBy struct {
+		ID             uint   `json:"id" validate:"required"`
+		JellyfinUserID string `json:"jellyfinUserId" validate:"required"`
+	} `json:"requestedBy" validate:"required"`
 }
 
 // GetAvailableMediaRequestsPage gets a page of media requests
