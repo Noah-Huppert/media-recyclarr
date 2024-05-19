@@ -1,16 +1,32 @@
 ﻿# https://swagger.emby.media/?url=https%3A%2F%2Fview.media.k8s.funkyboy.zone%2Femby%2Fopenapi%3FserverUrl%3Dhttps%253A%252F%252Fview.media.k8s.funkyboy.zone
-### Get Items
-GET {{ uri }}/emby/Items?Recursive=true&Ids=4221
+### GET Items - Dr Who
+# Dr Who ID = 2405
+GET {{ uri }}/emby/Items?Recursive=true&Ids=2405
 X-Emby-Token: {{ api_key }}
 
-### Get User Items (For Specific Movie)
-GET {{ uri }}/emby/Users/33a00857d54b497696352053075167a2/Items?Recursive=true&Ids=4221&IncludeItemTypes=movie
+### GET Items - For Noah - Dr Who
+# User ID = noah
+# Dr Who ID = 2405
+GET {{ uri }}/emby/Users/c6a110fe2fa54c1a9ba497bcf1d4cb91/Items?Recursive=true&ParentIds=2405&IncludeItemTypes=tv
 X-Emby-Token: {{ api_key }}
 
-### Get User Items (All)
-GET {{ uri }}/emby/Users/c6a110fe2fa54c1a9ba497bcf1d4cb91/Items?Recursive=true
+### GET Items - For Noah - Dr Who S06E01
+# User ID = noah
+# Dr Who S06E01 ID = 4033
+GET {{ uri }}/emby/Users/c6a110fe2fa54c1a9ba497bcf1d4cb91/Items?Ids=4033
 X-Emby-Token: {{ api_key }}
 
-### Get User Views
-GET {{ uri }}/emby/Users/33a00857d54b497696352053075167a2/Views
+### Get Items - For Noah - Lord of the Rings The Two Towers
+# User ID = noah
+# LOTR #2 ID = 4697
+GET {{ uri }}/emby/Users/c6a110fe2fa54c1a9ba497bcf1d4cb91/Items?Ids=4697
+X-Emby-Token: {{ api_key }}
+
+### GET Shows Episodes - Dr Who
+# Dr Who ID = 2405
+GET {{ uri }}/emby/Shows/2405/Episodes
+X-Emby-Token: {{ api_key }}
+
+### GET User Views - For Noah
+GET {{ uri }}/emby/Users/c6a110fe2fa54c1a9ba497bcf1d4cb91/Views
 X-Emby-Token: {{ api_key }}
