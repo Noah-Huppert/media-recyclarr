@@ -5,24 +5,60 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 )
 
 // APIClient is a generic client for HTTP APIs
 type APIClient struct {
-	baseURL   url.URL
-	headers   map[string]string
+	// logger outputs runtime information
+	logger *zap.Logger
+
+	// baseURL of API server
+	baseURL url.URL
+
+	// headers to send in every request
+	headers map[string]string
+
+	// timeout is how long a request is allowed to run before it is cancelled
+	timeout time.Duration
+
+	// validator to use to validate responses
 	validator validator.Validate
+
+	// logRequests indicates if details about each request should be logged
+	logRequests bool
 }
 
+const (
+	// DefaultTimeout is the timeout to use if one is not provided to NewAPIClient()
+	DefaultTimeout = time.Second * 30
+)
+
+// NewAPIClientOpts are options for NewAPIClient()
 type NewAPIClientOpts struct {
-	BaseURL   string
-	Headers   map[string]string
+	// Logger is used to output runtime information
+	Logger *zap.Logger
+
+	// BaseURL of API server
+	BaseURL string
+
+	// Headers to include in every request
+	Headers map[string]string
+
+	// Timeout is the length of time a request is allowed to last before being cancelled, defaults to DefaultTimeout
+	Timeout *time.Duration
+
+	// Validator is used to validate responses, reads validate tags in the Resp struct, if not provided a default one is made
 	Validator *validator.Validate
+
+	// LogRequests indicates if requests should be logged, defaults to false
+	LogRequests *bool
 }
 
 func NewAPIClient(opts NewAPIClientOpts) (*APIClient, error) {
@@ -31,14 +67,28 @@ func NewAPIClient(opts NewAPIClientOpts) (*APIClient, error) {
 		return nil, fmt.Errorf("failed to parse base URL as URL: %s", err)
 	}
 
+	timeout := DefaultTimeout
+	if opts.Timeout != nil {
+		timeout = *opts.Timeout
+	}
+
+	validatorInst := opts.Validator
 	if opts.Validator == nil {
-		opts.Validator = validator.New(validator.WithRequiredStructEnabled())
+		validatorInst = validator.New(validator.WithRequiredStructEnabled())
+	}
+
+	logRequests := false
+	if opts.LogRequests != nil {
+		logRequests = *opts.LogRequests
 	}
 
 	return &APIClient{
-		baseURL:   *baseURL,
-		headers:   opts.Headers,
-		validator: *opts.Validator,
+		logger:      opts.Logger,
+		baseURL:     *baseURL,
+		headers:     opts.Headers,
+		timeout:     timeout,
+		validator:   *validatorInst,
+		logRequests: logRequests,
 	}, nil
 }
 
@@ -76,12 +126,22 @@ func (c *APIClient) MakeRequest(opts MakeRequestOpts) error {
 
 	reqURL := c.baseURL.JoinPath(opts.Path)
 	if opts.QueryParams != nil {
+		query := reqURL.Query()
+
 		for k, v := range opts.QueryParams {
-			reqURL.Query().Set(k, v)
+			query.Set(k, v)
 		}
+
+		reqURL.RawQuery = query.Encode()
 	}
 
-	req, err := http.NewRequestWithContext(opts.Ctx, opts.Method, reqURL.String(), bodyReader)
+	if c.logRequests {
+		c.logger.Debug("request URL", zap.String("URL", reqURL.String()), zap.String("Path", opts.Path))
+	}
+
+	ctx, _ := context.WithDeadline(opts.Ctx, time.Now().Add(c.timeout))
+
+	req, err := http.NewRequestWithContext(ctx, opts.Method, reqURL.String(), bodyReader)
 	if err != nil {
 		return fmt.Errorf("failed to setup request: %s", err)
 	}
@@ -103,7 +163,7 @@ func (c *APIClient) MakeRequest(opts MakeRequestOpts) error {
 	}
 
 	if resp.StatusCode >= 300 {
-		return fmt.Errorf("response had non-OK status code %d %s: %s", resp.StatusCode, resp.Status, respBody)
+		return fmt.Errorf("response had non-OK status code %s: %s", resp.Status, respBody)
 	}
 
 	// Get response into provided struct
@@ -116,7 +176,9 @@ func (c *APIClient) MakeRequest(opts MakeRequestOpts) error {
 
 		// Validate
 		err = c.validator.StructCtx(opts.Ctx, opts.Resp)
-		return fmt.Errorf("failed to validate response: %s", err)
+		if err != nil {
+			return fmt.Errorf("failed to validate response: %s", err)
+		}
 	}
 
 	return nil

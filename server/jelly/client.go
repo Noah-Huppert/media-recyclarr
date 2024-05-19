@@ -3,6 +3,7 @@ package jelly
 import (
 	"context"
 	"fmt"
+	"go.uber.org/zap"
 	"time"
 
 	"github.com/Noah-Huppert/media-recyclarr/restclient"
@@ -10,12 +11,18 @@ import (
 
 // JellyClient wraps Jellyseerr API calls
 type JellyClient struct {
+	// logger is used to output runtime information
+	logger *zap.Logger
+
 	// apiClient is used to make API calls
 	apiClient *restclient.APIClient
 }
 
 // NewJellyClientOpts are options for NewJellyseerrManager
 type NewJellyClientOpts struct {
+	// Logger is used to output runtime information
+	Logger *zap.Logger
+
 	// JellyseerrURL is the URL to the Jellyseerr server
 	JellyseerrURL string
 
@@ -27,6 +34,7 @@ type NewJellyClientOpts struct {
 func NewJellyClient(opts NewJellyClientOpts) (*JellyClient, error) {
 	// Parse URL
 	apiClient, err := restclient.NewAPIClient(restclient.NewAPIClientOpts{
+		Logger:  opts.Logger.Named("api-client"),
 		BaseURL: opts.JellyseerrURL,
 		Headers: map[string]string{
 			"X-Api-Key": opts.JellyseerrAPIKey,
@@ -37,6 +45,7 @@ func NewJellyClient(opts NewJellyClientOpts) (*JellyClient, error) {
 	}
 
 	return &JellyClient{
+		logger:    opts.Logger,
 		apiClient: apiClient,
 	}, nil
 }
@@ -66,11 +75,11 @@ func getAllPages[Item interface{}](ctx context.Context, makeReq makePaginatedReq
 
 	pageNum := 1
 	totalPages := -1
-	for totalPages < 0 || pageNum < totalPages {
+	for totalPages < 0 || pageNum <= totalPages {
 		resp, err := makeReq(
 			ctx,
 			GET_ALL_PAGES_PAGE_SIZE,
-			(pageNum-1)*pageNum,
+			(pageNum-1)*GET_ALL_PAGES_PAGE_SIZE,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to make request for page %d: %s", pageNum, err)
@@ -78,16 +87,14 @@ func getAllPages[Item interface{}](ctx context.Context, makeReq makePaginatedReq
 
 		items = append(items, resp.Results...)
 
-		pageNum = resp.PageInfo.Page
+		pageNum = resp.PageInfo.Page + 1
 		totalPages = resp.PageInfo.Pages
 	}
 
 	return items, nil
 }
 
-const (
-
-)
+const ()
 
 // MediaRequest is a request for media in Jellyseerr
 type MediaRequest struct {

@@ -36,6 +36,7 @@ func main() {
 	}
 
 	jellyClient, err := jelly.NewJellyClient(jelly.NewJellyClientOpts{
+		Logger:           log.Named("jellyseerr"),
 		JellyseerrURL:    cfg.JellyseerrURL,
 		JellyseerrAPIKey: cfg.JellyseerrAPIKey,
 	})
@@ -44,6 +45,7 @@ func main() {
 	}
 
 	embyClient, err := emby.NewEmbyClient(emby.NewEmbyClientOpts{
+		Logger:     log.Named("emby"),
 		EmbyURL:    cfg.EmbyURL,
 		EmbyAPIKey: cfg.EmbyAPIKey,
 	})
@@ -52,9 +54,12 @@ func main() {
 	}
 
 	trasher := NewTrasher(NewTrasherOpts{
+		Logger:      log.Named("trasher"),
 		EmbyClient:  embyClient,
 		JellyClient: jellyClient,
 	})
 
-	log.Debug("use these vars", zap.Any("trasher", trasher), zap.Any("ctxPair", ctxPair))
+	if _, err := trasher.GetRequestedMedia(ctxPair.Graceful()); err != nil {
+		log.Fatal("failed to get requested media", zap.Error(err))
+	}
 }

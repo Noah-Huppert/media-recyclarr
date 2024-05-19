@@ -2,6 +2,7 @@ package emby
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 	"golang.org/x/net/context"
 	"strings"
 
@@ -10,12 +11,18 @@ import (
 
 // EmbyClient interacts with the Emby API client
 type EmbyClient struct {
+	// logger is used to output runtime information
+	logger *zap.Logger
+
 	// apiClient is used to make rest HTTP calls
 	apiClient *restclient.APIClient
 }
 
 // NewEmbyClientOpts are options for NewEmbyManager
 type NewEmbyClientOpts struct {
+	// Logger is used to output runtime information
+	Logger *zap.Logger
+
 	// EmbyURL is the Emby API server URL
 	EmbyURL string
 
@@ -26,6 +33,7 @@ type NewEmbyClientOpts struct {
 // NewEmbyClient creates a new EmbyManager
 func NewEmbyClient(opts NewEmbyClientOpts) (*EmbyClient, error) {
 	apiClient, err := restclient.NewAPIClient(restclient.NewAPIClientOpts{
+		Logger:  opts.Logger.Named("api-client"),
 		BaseURL: opts.EmbyURL,
 		Headers: map[string]string{
 			"X-Emby-Token": opts.EmbyAPIKey,
@@ -36,6 +44,7 @@ func NewEmbyClient(opts NewEmbyClientOpts) (*EmbyClient, error) {
 	}
 
 	return &EmbyClient{
+		logger:    opts.Logger,
 		apiClient: apiClient,
 	}, nil
 }
@@ -105,7 +114,7 @@ type ListMediaItemsOpts struct {
 func (client *EmbyClient) ListMediaItems(ctx context.Context, opts ListMediaItemsOpts) ([]MediaItem, error) {
 	queryParams := map[string]string{}
 	if opts.Recursive != nil {
-		queryParams["Recursive"] = fmt.Sprint(opts.Recursive)
+		queryParams["Recursive"] = fmt.Sprint(*opts.Recursive)
 	}
 	if opts.IncludeItemTypes != nil {
 		queryParams["IncludeItemTypes"] = strings.Join(opts.IncludeItemTypes, ",")
@@ -214,7 +223,7 @@ func (client *EmbyClient) ListShowSeasons(ctx context.Context, showID string) ([
 	err := client.apiClient.MakeRequest(restclient.MakeRequestOpts{
 		Ctx:    ctx,
 		Method: "GET",
-		Path:   fmt.Sprintf("/emby/Shows/%d/Seasons", showID),
+		Path:   fmt.Sprintf("/emby/Shows/%s/Seasons", showID),
 		Resp:   &resp,
 	})
 	if err != nil {
@@ -235,7 +244,7 @@ func (client *EmbyClient) ListShowEpisodes(ctx context.Context, showID string, s
 	err := client.apiClient.MakeRequest(restclient.MakeRequestOpts{
 		Ctx:    ctx,
 		Method: "GET",
-		Path:   fmt.Sprintf("/emby/Shows/%d/Episodes", showID),
+		Path:   fmt.Sprintf("/emby/Shows/%s/Episodes", showID),
 		QueryParams: map[string]string{
 			"SeasonId": seasonID,
 		},
@@ -300,6 +309,8 @@ func (client *EmbyClient) GetMediaTree(ctx context.Context, parent *MediaItemNod
 			return nil, fmt.Errorf("failed to list movies and series: %s", err)
 		}
 
+		client.logger.Debug("no parent", zap.Int("items count", len(items)))
+
 		children = NewMediaItemNodeArray(items)
 	} else {
 		// Get children of specific type of parent
@@ -309,6 +320,8 @@ func (client *EmbyClient) GetMediaTree(ctx context.Context, parent *MediaItemNod
 			if err != nil {
 				return nil, fmt.Errorf("failed to list seasons for series: %s", err)
 			}
+
+			client.logger.Debug("series parent", zap.Int("seasons count", len(seasons)))
 
 			children = NewMediaItemNodeArray(seasons)
 		} else if parent.Type == MediaItemTypeSeason {
@@ -322,8 +335,12 @@ func (client *EmbyClient) GetMediaTree(ctx context.Context, parent *MediaItemNod
 				return nil, fmt.Errorf("failed to list episodes for season: %s", err)
 			}
 
+			client.logger.Debug("season parent", zap.Int("episodes count", len(episodes)))
+
 			children = NewMediaItemNodeArray(episodes)
 		}
+
+		client.logger.Debug("no children type parent", zap.String("Type", parent.Type), zap.String("Name", parent.Name))
 
 		// No other media type has children
 	}

@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"go.uber.org/zap"
+	"strings"
 	"time"
 
 	"github.com/Noah-Huppert/media-recyclarr/emby"
@@ -11,6 +13,9 @@ import (
 
 // Trasher is responsible for finding media which should be elimated
 type Trasher struct {
+	// logger is used to output information
+	logger *zap.Logger
+
 	// embyMgr is the Emby manager to use
 	embyClient *emby.EmbyClient
 
@@ -23,6 +28,9 @@ type Trasher struct {
 
 // NewTrasherOpts are opts for NewTrasher
 type NewTrasherOpts struct {
+	// Logger is used to output information
+	Logger *zap.Logger
+
 	// EmbyClient is the Emby API client
 	EmbyClient *emby.EmbyClient
 
@@ -36,6 +44,7 @@ type NewTrasherOpts struct {
 // NewTrasher creates a new Trasher
 func NewTrasher(opts NewTrasherOpts) *Trasher {
 	return &Trasher{
+		logger:      opts.Logger,
 		embyClient:  opts.EmbyClient,
 		jellyClient: opts.JellyClient,
 		expireAfter: opts.ExpireAfter,
@@ -75,9 +84,17 @@ type RequestedMedia struct {
 	Children []RequestedMedia
 }
 
+func (trasher *Trasher) printMediaTree(root emby.MediaItemNode, depth int) {
+	trasher.logger.Debug(fmt.Sprintf("%s%s (%s, %s)", strings.Repeat(" ", depth), root.Name, root.Type, root.ID))
+	for _, child := range root.Children {
+		trasher.printMediaTree(child, depth+1)
+	}
+}
+
 // GetRequestedMedia returns RequestedMedia
 func (trasher *Trasher) GetRequestedMedia(ctx context.Context) ([]RequestedMedia, error) {
 	// Find media requests in Jellyseerr
+	trasher.logger.Debug("getting media requests")
 	mediaRequests, err := trasher.jellyClient.GetAvailableMediaRequests(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get media requests: %s", err)
@@ -100,6 +117,15 @@ func (trasher *Trasher) GetRequestedMedia(ctx context.Context) ([]RequestedMedia
 	// TODO: Get watch status for every user for every media item
 	// TODO: Find newest watch time for every media item
 	// TODO: Find media items which haven't been watched recently enough
+	trasher.logger.Debug("getting media tree")
+	children, err := trasher.embyClient.GetMediaTree(ctx, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve media tree: %s", err)
+	}
+
+	for _, child := range children {
+		trasher.printMediaTree(child, 0)
+	}
 
 	// Get watch status from Emby
 	return nil, nil
