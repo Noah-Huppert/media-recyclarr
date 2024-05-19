@@ -309,8 +309,6 @@ func (client *EmbyClient) GetMediaTree(ctx context.Context, parent *MediaItemNod
 			return nil, fmt.Errorf("failed to list movies and series: %s", err)
 		}
 
-		client.logger.Debug("no parent", zap.Int("items count", len(items)))
-
 		children = NewMediaItemNodeArray(items)
 	} else {
 		// Get children of specific type of parent
@@ -321,8 +319,6 @@ func (client *EmbyClient) GetMediaTree(ctx context.Context, parent *MediaItemNod
 				return nil, fmt.Errorf("failed to list seasons for series: %s", err)
 			}
 
-			client.logger.Debug("series parent", zap.Int("seasons count", len(seasons)))
-
 			children = NewMediaItemNodeArray(seasons)
 		} else if parent.Type == MediaItemTypeSeason {
 			// Get episodes of parent season
@@ -330,17 +326,13 @@ func (client *EmbyClient) GetMediaTree(ctx context.Context, parent *MediaItemNod
 				return nil, fmt.Errorf("cannot get episodes of season if SeriesID is nil")
 			}
 
-			episodes, err := client.ListShowEpisodes(ctx, parent.ID, *parent.SeriesID)
+			episodes, err := client.ListShowEpisodes(ctx, *parent.SeriesID, parent.ID)
 			if err != nil {
 				return nil, fmt.Errorf("failed to list episodes for season: %s", err)
 			}
 
-			client.logger.Debug("season parent", zap.Int("episodes count", len(episodes)))
-
 			children = NewMediaItemNodeArray(episodes)
 		}
-
-		client.logger.Debug("no children type parent", zap.String("Type", parent.Type), zap.String("Name", parent.Name))
 
 		// No other media type has children
 	}
