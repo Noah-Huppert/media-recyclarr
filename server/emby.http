@@ -1,0 +1,16 @@
+﻿# https://swagger.emby.media/?url=https%3A%2F%2Fview.media.k8s.funkyboy.zone%2Femby%2Fopenapi%3FserverUrl%3Dhttps%253A%252F%252Fview.media.k8s.funkyboy.zone
+### Get Items
+GET {{ uri }}/emby/Items?Recursive=true&Ids=4221
+X-Emby-Token: {{ api_key }}
+
+### Get User Items (For Specific Movie)
+GET {{ uri }}/emby/Users/33a00857d54b497696352053075167a2/Items?Recursive=true&Ids=4221&IncludeItemTypes=movie
+X-Emby-Token: {{ api_key }}
+
+### Get User Items (All)
+GET {{ uri }}/emby/Users/c6a110fe2fa54c1a9ba497bcf1d4cb91/Items?Recursive=true
+X-Emby-Token: {{ api_key }}
+
+### Get User Views
+GET {{ uri }}/emby/Users/33a00857d54b497696352053075167a2/Views
+X-Emby-Token: {{ api_key }}

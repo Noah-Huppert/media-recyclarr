@@ -1,0 +1,4 @@
+﻿# https://api-docs.overseerr.dev/
+### Get requests
+GET {{ uri }}/api/v1/request?filter=available
+X-Api-Key: {{ api_key }}
