@@ -49,6 +49,15 @@ type PaginatableResponse[Item interface{}] struct {
 	TotalRecordCount int `validate:"required"`
 }
 
+// CheckItemsCount ensures that all the items where returned in one page. As right now we don't implement pagination.
+func (resp PaginatableResponse[Item]) CheckItemsCount() error {
+	if resp.TotalRecordCount != len(resp.Items) {
+		return fmt.Errorf("no pagination configured but results do not contain all items")
+	}
+
+	return nil
+}
+
 // MediaItem contains details about a piece of media in the server
 type MediaItem struct {
 	// ID is the unique ID of the media item in the server
@@ -70,6 +79,33 @@ type MediaItem struct {
 	Type string `validate:"required oneof=Episode,Season,Movie"`
 }
 
+// GetMediaItems retries media items
+func (client *EmbyClient) GetMediaItems(ctx context.Context, ids []string) ([]MediaItem, error) {
+	if len(ids) == 0 {
+		return nil, fmt.Errorf("ids cannot be empty")
+	}
+
+	var resp PaginatableResponse[MediaItem]
+	err := client.apiClient.MakeRequest(restclient.MakeRequestOpts{
+		Ctx:    ctx,
+		Method: "GET",
+		Path:   "/emby/Items",
+		QueryParams: map[string]string{
+			"Ids": strings.Join(ids, ","),
+		},
+		Resp: &resp,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to make request: %s", err)
+	}
+
+	if err := resp.CheckItemsCount(); err != nil {
+		return nil, err
+	}
+
+	return resp.Items, nil
+}
+
 // UserMediaItem is a media item with details specific to a user
 type UserMediaItem struct {
 	MediaItem
@@ -80,10 +116,6 @@ type UserMediaItem struct {
 		Played bool `validate:"required"`
 	} `validate:"required"`
 }
-
-// TODO: GetMediaItems() /Items
-// TODO: ListUsers() /Users/Query
-// TODO: ListShowEpisodes() /Shows/{Id}/Episodes
 
 func (client *EmbyClient) GetUserMediaItems(ctx context.Context, userID string, ids []string) ([]UserMediaItem, error) {
 	if len(ids) == 0 {
@@ -96,7 +128,7 @@ func (client *EmbyClient) GetUserMediaItems(ctx context.Context, userID string, 
 		Method: "GET",
 		Path:   fmt.Sprintf("/emby/Users/%s/items", userID),
 		QueryParams: map[string]string{
-			"ids": strings.Join(ids, ","),
+			"Ids": strings.Join(ids, ","),
 		},
 		Resp: &resp,
 	})
@@ -104,9 +136,12 @@ func (client *EmbyClient) GetUserMediaItems(ctx context.Context, userID string, 
 		return nil, fmt.Errorf("failed to make request: %s", err)
 	}
 
-	if resp.TotalRecordCount != len(resp.Items) {
-		return nil, fmt.Errorf("no pagination configured but results do not contain all items")
+	if err := resp.CheckItemsCount(); err != nil {
+		return nil, err
 	}
 
 	return resp.Items, nil
 }
+
+// TODO: ListUsers() /Users/Query
+// TODO: ListShowEpisodes() /Shows/{Id}/Episodes
