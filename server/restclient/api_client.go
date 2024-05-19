@@ -42,13 +42,25 @@ func NewAPIClient(opts NewAPIClientOpts) (*APIClient, error) {
 	}, nil
 }
 
+// MakeRequestOpts are options for making a REST request
 type MakeRequestOpts struct {
-	Ctx         context.Context
-	Method      string
-	Path        string
+	// Ctx is the context to use for the request
+	Ctx context.Context
+
+	// Method is the HTTP method
+	Method string
+
+	// Path is the request path
+	Path string
+
+	// QueryParams are optional query params
 	QueryParams map[string]string
-	Body        interface{}
-	Resp        interface{}
+
+	// Body is an optional request body which will be serialized as JSON
+	Body interface{}
+
+	// Resp is an optional variable to put the JSON response into
+	Resp interface{}
 }
 
 func (c *APIClient) MakeRequest(opts MakeRequestOpts) error {
@@ -63,8 +75,10 @@ func (c *APIClient) MakeRequest(opts MakeRequestOpts) error {
 	}
 
 	reqURL := c.baseURL.JoinPath(opts.Path)
-	for k, v := range opts.QueryParams {
-		reqURL.Query().Set(k, v)
+	if opts.QueryParams != nil {
+		for k, v := range opts.QueryParams {
+			reqURL.Query().Set(k, v)
+		}
 	}
 
 	req, err := http.NewRequestWithContext(opts.Ctx, opts.Method, reqURL.String(), bodyReader)

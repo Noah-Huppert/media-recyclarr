@@ -36,3 +36,7 @@ X-Emby-Token: {{ api_key }}
 ### GET User Views - For Noah
 GET {{ uri }}/emby/Users/c6a110fe2fa54c1a9ba497bcf1d4cb91/Views
 X-Emby-Token: {{ api_key }}
+
+### GET Users
+GET {{ uri }}/emby/Users/Query
+X-Emby-Token: {{ api_key }}

@@ -143,5 +143,59 @@ func (client *EmbyClient) GetUserMediaItems(ctx context.Context, userID string, 
 	return resp.Items, nil
 }
 
-// TODO: ListUsers() /Users/Query
-// TODO: ListShowEpisodes() /Shows/{Id}/Episodes
+// User is an Emby user
+type User struct {
+	// ID of user
+	ID string `json:"Id" validate:"required"`
+
+	// Name of user
+	Name string `validate:"required"`
+
+	// Policy contains permission details for user
+	Policy struct {
+		// IsAdministrator indicates if the user is a server admin
+		IsAdministrator bool `validate:"required"`
+	} `validate:"required"`
+}
+
+// ListUsers retrieves all users
+func (client *EmbyClient) ListUsers(ctx context.Context) ([]User, error) {
+	var resp PaginatableResponse[User]
+
+	err := client.apiClient.MakeRequest(restclient.MakeRequestOpts{
+		Ctx:    ctx,
+		Method: "GET",
+		Path:   "/emby/Users/Query",
+		Resp:   &resp,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to make request: %s", err)
+	}
+
+	if err := resp.CheckItemsCount(); err != nil {
+		return nil, err
+	}
+
+	return resp.Items, nil
+}
+
+// ListShowEpisodes retrieves episodes for a TV show
+func (client *EmbyClient) ListShowEpisodes(ctx context.Context, showID string) ([]MediaItem, error) {
+	var resp PaginatableResponse[MediaItem]
+
+	err := client.apiClient.MakeRequest(restclient.MakeRequestOpts{
+		Ctx:    ctx,
+		Method: "GET",
+		Path:   fmt.Sprintf("/emby/Shows/%d/Episodes", showID),
+		Resp:   &resp,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to make request: %s", err)
+	}
+
+	if err := resp.CheckItemsCount(); err != nil {
+		return nil, err
+	}
+
+	return resp.Items, nil
+}
