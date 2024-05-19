@@ -1,4 +1,9 @@
 ﻿# https://swagger.emby.media/?url=https%3A%2F%2Fview.media.k8s.funkyboy.zone%2Femby%2Fopenapi%3FserverUrl%3Dhttps%253A%252F%252Fview.media.k8s.funkyboy.zone
+### GET Items - Movies & Series
+# Dr Who ID = 2405
+GET {{ uri }}/emby/Items?Recursive=true&IncludeItemTypes=Movie,Series
+X-Emby-Token: {{ api_key }}
+
 ### GET Items - Dr Who
 # Dr Who ID = 2405
 GET {{ uri }}/emby/Items?Ids=2405
@@ -28,9 +33,15 @@ X-Emby-Token: {{ api_key }}
 GET {{ uri }}/emby/Users/c6a110fe2fa54c1a9ba497bcf1d4cb91/Items?Ids=4697
 X-Emby-Token: {{ api_key }}
 
+### GET Shows Seasons - Dr Who
+# Dr Who ID = 2405
+GET {{ uri }}/emby/Shows/2405/Seasons
+X-Emby-Token: {{ api_key }}
+
 ### GET Shows Episodes - Dr Who
 # Dr Who ID = 2405
-GET {{ uri }}/emby/Shows/2405/Episodes
+# Dr Who S06 ID = 4016
+GET {{ uri }}/emby/Shows/2405/Episodes?SeasonId=4016
 X-Emby-Token: {{ api_key }}
 
 ### GET User Views - For Noah
