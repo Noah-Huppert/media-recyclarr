@@ -59,6 +59,14 @@ type User struct {
 	EmbyID string
 }
 
+// UserWatch represents a user who has watched a piece of media
+type UserWatch struct {
+	User
+
+	// WatchedAt is when the piece of media was watched
+	WatchedAt time.Time
+}
+
 // RequestedMedia represents a piece of media which exists because it was requested and retrieved
 type RequestedMedia struct {
 	// JellyseerrID is the ID of the request in Jellyseerr
@@ -74,7 +82,7 @@ type RequestedMedia struct {
 	RequestedBy User
 
 	// PlayedBy are users who have played this piece of media
-	PlayedBy []User
+	PlayedBy []UserWatch
 
 	// AvailableAt is when the media became available to watch
 	AvailableAt time.Time
@@ -83,8 +91,85 @@ type RequestedMedia struct {
 	Children []RequestedMedia
 }
 
-// GetRequestedMedia returns RequestedMedia
-func (trasher *Trasher) GetRequestedMedia(ctx context.Context) ([]RequestedMedia, error) {
+// requestedMediaBuilder builds a tree of RequestedMedia
+// It holds information from jellyseerr and emby APIs
+type requestedMediaBuilder struct {
+	// mediaRequests are Jellyseerr media requests
+	mediaRequests []jelly.MediaRequest
+
+	// mediaRequestsByID is a map of jellyseerr media requests references organized by emby media ID
+	mediaRequestsByID map[string]*jelly.MediaRequest
+
+	// embyUsersByID is a map of emby users where keys are user IDs
+	embyUsersByID map[string]emby.User
+
+	// mediaTree is a tree of emby media items
+	mediaTree emby.MediaItemNodeArray
+
+	// mediaTreeIDMap is a tree of references to nodes in mediaTree, where keys are media item IDs
+	mediaTreeIDMap emby.MediaItemNodeIDMap
+
+	// mediaWatchedBy indicates which Emby users watched which pieces of media
+	mediaWatchedBy map[string][]UserWatch
+}
+
+// buildNode creates a RequestedMedia object for the specified emby media
+func (builder *requestedMediaBuilder) buildNode(embyMediaID string) (*RequestedMedia, error) {
+	mediaReq, ok := builder.mediaRequestsByID[embyMediaID]
+	if !ok {
+		return nil, fmt.Errorf("no Jellyseer media request found for Emby media id '%s'", embyMediaID)
+	}
+
+	media, ok := builder.mediaTreeIDMap[embyMediaID]
+	if !ok {
+		return nil, fmt.Errorf("no Emby media item found with id '%s'", embyMediaID)
+	}
+
+	requested := RequestedMedia{
+		JellyseerrID: mediaReq.ID,
+		Name:         media.Name,
+		EmbyID:       embyMediaID,
+		RequestedBy: User{
+			Name:   builder.embyUsersByID[mediaReq.RequestedBy.JellyfinUserID].Name,
+			EmbyID: mediaReq.RequestedBy.JellyfinUserID,
+		},
+		PlayedBy:    builder.mediaWatchedBy[embyMediaID],
+		AvailableAt: mediaReq.Media.MediaAddedAt,
+	}
+	requestedChildren := []RequestedMedia{}
+
+	for _, mediaChild := range media.Children {
+		child, err := builder.buildNode(mediaChild.ID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to build requested media item emby media item '%s' (Child of emby media item '%s'): %s", mediaChild.ID, media.ID, err)
+		}
+
+		requestedChildren = append(requestedChildren, *child)
+	}
+
+	requested.Children = requestedChildren
+
+	return &requested, nil
+}
+
+// buildTree creates a RequestedMedia object for each known piece of media
+func (builder *requestedMediaBuilder) buildTree() ([]RequestedMedia, error) {
+	children := []RequestedMedia{}
+
+	for _, jellyReq := range builder.mediaRequests {
+		child, err := builder.buildNode(jellyReq.Media.JellyfinMediaID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create RequestedMedia object for Emby media '%s': %s", jellyReq.Media.JellyfinMediaID, err)
+		}
+
+		children = append(children, *child)
+	}
+
+	return children, nil
+}
+
+// populateRequestedMediaBuilder makes all necessary API calls and creates all required data structures to create a valid requestedMediaBuilder
+func (trasher *Trasher) populateRequestedMediaBuilder(ctx context.Context) (*requestedMediaBuilder, error) {
 	// Find media requests in Jellyseerr
 	trasher.logger.Debug("getting media requests")
 	mediaRequests, err := trasher.jellyClient.GetAvailableMediaRequests(ctx)
@@ -92,16 +177,10 @@ func (trasher *Trasher) GetRequestedMedia(ctx context.Context) ([]RequestedMedia
 		return nil, fmt.Errorf("failed to get media requests: %s", err)
 	}
 
-	media := []RequestedMedia{}
+	mediaRequestsByID := map[string]*jelly.MediaRequest{}
+
 	for _, req := range mediaRequests {
-		media = append(media, RequestedMedia{
-			JellyseerrID: req.ID,
-			EmbyID:       req.Media.JellyfinMediaID,
-			RequestedBy: User{
-				EmbyID: req.RequestedBy.JellyfinUserID,
-			},
-			AvailableAt: req.Media.MediaAddedAt,
-		})
+		mediaRequestsByID[req.Media.JellyfinMediaID] = req
 	}
 
 	// Get emby users
@@ -109,9 +188,12 @@ func (trasher *Trasher) GetRequestedMedia(ctx context.Context) ([]RequestedMedia
 	if err != nil {
 		return nil, fmt.Errorf("failed to get list of emby users: %s", err)
 	}
-	
-	// TODO: Find newest watch time for every media item
-	// TODO: Find media items which haven't been watched recently enough
+
+	embyUsersByID := map[string]emby.User{}
+	for _, user := range embyUsers {
+		embyUsersByID[user.ID] = user
+	}
+
 	// Get tree of all media
 	trasher.logger.Debug("getting media tree")
 	children, err := trasher.embyClient.GetMediaTree(ctx, nil)
@@ -123,33 +205,59 @@ func (trasher *Trasher) GetRequestedMedia(ctx context.Context) ([]RequestedMedia
 		emby.MediaItemTypeMovie,
 	})
 
-	mediaWatchedByUserIDs := map[string][]string{}
+	// Get watch status for Emby
+	mediaWatchedBy := map[string][]UserWatch{}
 	for _, id := range leafMediaIDs {
-		mediaWatchedByUserIDs[id] = []string{}
+		mediaWatchedBy[id] = []UserWatch{}
 	}
 
-	// Get watch status from Emby
 	for _, user := range embyUsers {
-		// Get user media items
-		trueVal := true
-		playedUserItems, err := trasher.embyClient.ListUserMediaItems(ctx, user.ID, emby.ListUserMediaItemsFilterOpts{
-			IDs:      leafMediaIDs,
-			IsPlayed: &trueVal,
-		})
+		userActivity, err := trasher.embyClient.ListUserPlayActivity(ctx, user.ID, nil)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get emby user media items for user '%s' (%s): %s", user.Name, user.ID, err)
+			return nil, fmt.Errorf("failed to Emby get user play activity for user '%s' (%s): %s", user.Name, user.ID, err)
 		}
 
-		// Record if a user has watched
-		for _, userItem := range playedUserItems {
-			mediaWatchedByUserIDs[userItem.ID] = append(mediaWatchedByUserIDs[userItem.ID], user.ID)
+		for _, activity := range userActivity {
+			itemID := fmt.Sprint(activity.ItemID)
+
+			mediaWatchedBy[itemID] = append(mediaWatchedBy[itemID], UserWatch{
+				User: User{
+					Name:   embyUsersByID[activity.UserID].Name,
+					EmbyID: activity.UserID,
+				},
+				WatchedAt: activity.WatchedAt(),
+			})
 		}
 	}
 
-	return nil, nil
+	return &requestedMediaBuilder{
+		mediaRequests:     mediaRequests,
+		mediaRequestsByID: mediaRequestsByID,
+		embyUsersByID:     embyUsersByID,
+		mediaTree:         children,
+		mediaTreeIDMap:    children.MediaItemNodeIDMap(),
+		mediaWatchedBy:    mediaWatchedBy,
+	}, nil
+}
+
+// GetRequestedMedia returns RequestedMedia
+func (trasher *Trasher) GetRequestedMedia(ctx context.Context) ([]RequestedMedia, error) {
+	builder, err := trasher.populateRequestedMediaBuilder(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to gather information about media: %s", err)
+	}
+
+	requested, err := builder.buildTree()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build tree of requested media: %s", err)
+	}
+
+	return requested, nil
 }
 
 // GetExpiredMedia returns all RequestedMedia which has passed the expired deadline
 func (trasher *Trasher) GetExpiredMedia(ctx context.Context) ([]RequestedMedia, error) {
+	// TODO: Find newest watch time for every media item
+	// TODO: Find media items which haven't been watched recently enough
 	return nil, nil
 }

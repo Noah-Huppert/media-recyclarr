@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"golang.org/x/net/context"
+	"math"
 	"strings"
+	"time"
 
 	"github.com/Noah-Huppert/media-recyclarr/restclient"
 )
@@ -426,4 +428,57 @@ func (client *EmbyClient) GetMediaTree(ctx context.Context, parent *MediaItemNod
 	}
 
 	return children, nil
+}
+
+// UserPlayActivity is a record of a piece of media being watched
+type UserPlayActivity struct {
+	// Date on which activity occurred
+	Date time.Time `json:"date" validate:"required"`
+
+	// Time at which activity occurred
+	Time time.Time `json:"time" validate:"required"`
+
+	// UserID is the ID of the user who watched
+	UserID string `json:"user_id" validate:"required"`
+
+	// ItemID is the ID of the item which was watched
+	ItemID int `json:"item_id" validate:"required"`
+
+	// ItemType is the type of the item which was watched
+	ItemType string `json:"item_type" validate:"required oneof=Series,Season,Episode,Movie"`
+
+	// Duration is the number of seconds the media item was watched
+	Duration string `json:"duration" validate:"required"`
+}
+
+// WatchedAt combines the date and time in the UserPlayActivity
+func (a UserPlayActivity) WatchedAt() time.Time {
+	return time.Date(a.Date.Year(), a.Date.Month(), a.Date.Day(), a.Time.Hour(), a.Time.Minute(), a.Time.Second(), a.Time.Nanosecond(), a.Time.Location())
+}
+
+// ListUserPlayActivity retrieves a list of all the play activity items for a user
+// If lookBackDays is nil then calculates the number of days from today back to EPOCH
+func (client *EmbyClient) ListUserPlayActivity(ctx context.Context, userID string, lookBackDays *int) ([]UserPlayActivity, error) {
+	if lookBackDays == nil {
+		epoch := time.Date(1970, 1, 1, 0, 0, 0, 0, nil)
+		daysFromEpoch := int(math.Ceil(time.Now().Sub(epoch).Hours() / 24))
+		lookBackDays = &daysFromEpoch
+	}
+
+	var resp []UserPlayActivity
+	err := client.apiClient.MakeRequest(restclient.MakeRequestOpts{
+		Ctx:    ctx,
+		Method: "GET",
+		Path:   "/emby/user_usage_stats/UserPlaylist",
+		QueryParams: map[string]string{
+			"user_id": userID,
+			"days":    fmt.Sprint(*lookBackDays),
+		},
+		Resp: &resp,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to make request: %s", err)
+	}
+
+	return resp, nil
 }
