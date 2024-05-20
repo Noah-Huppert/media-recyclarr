@@ -1,6 +1,7 @@
 package emby
 
 import (
+	"encoding/json"
 	"fmt"
 	"go.uber.org/zap"
 	"golang.org/x/net/context"
@@ -97,7 +98,7 @@ type MediaItem struct {
 	SeriesID *string `json:"SeriesId"`
 
 	// Type of media
-	Type string `validate:"required oneof=Series,Season,Episode,Movie"`
+	Type string `validate:"required,oneof=Series Season Episode Movie"`
 }
 
 // ListMediaItemsOpts are query options for ListMediaItems
@@ -430,13 +431,55 @@ func (client *EmbyClient) GetMediaTree(ctx context.Context, parent *MediaItemNod
 	return children, nil
 }
 
+// UserPlayActivityDate unmarshalls the date format (YYYY-MM-DD) used by UserPlayActivity
+type UserPlayActivityDate struct {
+	time.Time
+}
+
+func (d *UserPlayActivityDate) UnmarshalJSON(b []byte) error {
+	s := strings.Trim(string(b), "\"")
+	t, err := time.Parse("2006-01-02", s)
+	if err != nil {
+		return fmt.Errorf("failed to parse date in format YYYY-MM-DD: %s", err)
+	}
+
+	*d = UserPlayActivityDate{t}
+
+	return nil
+}
+
+func (d UserPlayActivityDate) MarshalJSON() ([]byte, error) {
+	return json.Marshal(time.Time(d.Time))
+}
+
+// UserPlayActivityTime unmarshalls the time format (HH:MM:SS) used by UserPlayActivity
+type UserPlayActivityTime struct {
+	time.Time
+}
+
+func (d *UserPlayActivityTime) UnmarshalJSON(b []byte) error {
+	s := strings.Trim(string(b), "\"")
+	t, err := time.Parse("15:04:05", s)
+	if err != nil {
+		return fmt.Errorf("failed to parse date in format HH:MM:SS: %s", err)
+	}
+
+	*d = UserPlayActivityTime{t}
+
+	return nil
+}
+
+func (d UserPlayActivityTime) MarshalJSON() ([]byte, error) {
+	return json.Marshal(time.Time(d.Time))
+}
+
 // UserPlayActivity is a record of a piece of media being watched
 type UserPlayActivity struct {
 	// Date on which activity occurred
-	Date time.Time `json:"date" validate:"required"`
+	Date UserPlayActivityDate `json:"date" validate:"required"`
 
 	// Time at which activity occurred
-	Time time.Time `json:"time" validate:"required"`
+	Time UserPlayActivityTime `json:"time" validate:"required"`
 
 	// UserID is the ID of the user who watched
 	UserID string `json:"user_id" validate:"required"`
@@ -445,7 +488,7 @@ type UserPlayActivity struct {
 	ItemID int `json:"item_id" validate:"required"`
 
 	// ItemType is the type of the item which was watched
-	ItemType string `json:"item_type" validate:"required oneof=Series,Season,Episode,Movie"`
+	ItemType string `json:"item_type" validate:"required,oneof=Series Season Episode Movie"`
 
 	// Duration is the number of seconds the media item was watched
 	Duration string `json:"duration" validate:"required"`
@@ -456,16 +499,23 @@ func (a UserPlayActivity) WatchedAt() time.Time {
 	return time.Date(a.Date.Year(), a.Date.Month(), a.Date.Day(), a.Time.Hour(), a.Time.Minute(), a.Time.Second(), a.Time.Nanosecond(), a.Time.Location())
 }
 
+type UserPlayActivityArray []UserPlayActivity
+
+type ListUserPlayActivityResp struct {
+	UserPlayActivityArray
+}
+
 // ListUserPlayActivity retrieves a list of all the play activity items for a user
 // If lookBackDays is nil then calculates the number of days from today back to EPOCH
 func (client *EmbyClient) ListUserPlayActivity(ctx context.Context, userID string, lookBackDays *int) ([]UserPlayActivity, error) {
 	if lookBackDays == nil {
-		epoch := time.Date(1970, 1, 1, 0, 0, 0, 0, nil)
+		epoch := time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
 		daysFromEpoch := int(math.Ceil(time.Now().Sub(epoch).Hours() / 24))
 		lookBackDays = &daysFromEpoch
 	}
 
-	var resp []UserPlayActivity
+	var resp UserPlayActivityArray
+	falseVal := false
 	err := client.apiClient.MakeRequest(restclient.MakeRequestOpts{
 		Ctx:    ctx,
 		Method: "GET",
@@ -474,10 +524,16 @@ func (client *EmbyClient) ListUserPlayActivity(ctx context.Context, userID strin
 			"user_id": userID,
 			"days":    fmt.Sprint(*lookBackDays),
 		},
-		Resp: &resp,
+		Resp:     &resp,
+		Validate: &falseVal,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %s", err)
+	}
+
+	structResp := ListUserPlayActivityResp{resp}
+	if err := client.apiClient.Validate(ctx, structResp); err != nil {
+		return nil, fmt.Errorf("failed to validate response: %s", err)
 	}
 
 	return resp, nil

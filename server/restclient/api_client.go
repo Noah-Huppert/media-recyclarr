@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"reflect"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -111,9 +112,45 @@ type MakeRequestOpts struct {
 
 	// Resp is an optional variable to put the JSON response into
 	Resp interface{}
+
+	// Validate indicates if the response should be validated, defaults to True
+	Validate *bool
 }
 
+// CheckCanValidate determines if the input object can be validated
+func (c *APIClient) CheckCanValidate(obj interface{}) bool {
+	val := reflect.ValueOf(obj)
+
+	if val.Kind() == reflect.Ptr && !val.IsNil() {
+		val = val.Elem()
+	}
+
+	return val.Kind() == reflect.Struct
+}
+
+// Validate a struct
+func (c *APIClient) Validate(ctx context.Context, obj interface{}) error {
+	if !c.CheckCanValidate(obj) {
+		return fmt.Errorf("cannot validate a non-struct")
+	}
+
+	return c.validator.StructCtx(ctx, obj)
+}
+
+// MakeRequest executes an HTTP request
+// Note: Cannot validate opts.Resp if it isn't a struct, be sure to set opts.Validate = false if this is the case and
+// then call APIClient.Validate() with a type of struct
 func (c *APIClient) MakeRequest(opts MakeRequestOpts) error {
+	// Check pre-conditions
+	shouldValidate := true
+	if opts.Validate != nil {
+		shouldValidate = *opts.Validate
+	}
+
+	if opts.Resp != nil && !c.CheckCanValidate(opts.Resp) && shouldValidate {
+		return fmt.Errorf("cannot validate a non-struct response object")
+	}
+
 	// Setup request
 	var bodyReader io.Reader = nil
 	if opts.Body != nil {
@@ -167,7 +204,7 @@ func (c *APIClient) MakeRequest(opts MakeRequestOpts) error {
 	}
 
 	// Get response into provided struct
-	if opts.Resp != nil {
+	if opts.Resp != nil && shouldValidate {
 		// Unmarshall
 		err = json.Unmarshal(respBody, opts.Resp)
 		if err != nil {
