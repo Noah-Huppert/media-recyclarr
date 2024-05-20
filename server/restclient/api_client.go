@@ -204,7 +204,7 @@ func (c *APIClient) MakeRequest(opts MakeRequestOpts) error {
 	}
 
 	// Get response into provided struct
-	if opts.Resp != nil && shouldValidate {
+	if opts.Resp != nil {
 		// Unmarshall
 		err = json.Unmarshal(respBody, opts.Resp)
 		if err != nil {
@@ -212,9 +212,11 @@ func (c *APIClient) MakeRequest(opts MakeRequestOpts) error {
 		}
 
 		// Validate
-		err = c.validator.StructCtx(opts.Ctx, opts.Resp)
-		if err != nil {
-			return fmt.Errorf("failed to validate response: %s", err)
+		if shouldValidate {
+			err = c.validator.StructCtx(opts.Ctx, opts.Resp)
+			if err != nil {
+				return fmt.Errorf("failed to validate response: %s", err)
+			}
 		}
 	}
 
