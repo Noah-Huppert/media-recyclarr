@@ -130,7 +130,9 @@ type requestedMediaBuilder struct {
 	mediaTreeIDMap emby.MediaItemNodeIDMap
 
 	// mediaWatchedBy indicates which Emby users watched which pieces of media
-	mediaWatchedBy map[string][]UserWatch
+	// First level keys are emby media IDs
+	// Second level keys are emby user IDs
+	mediaWatchedBy map[string]map[string]UserWatch
 }
 
 // buildNode creates a RequestedMedia object for the specified emby media
@@ -145,6 +147,11 @@ func (builder *requestedMediaBuilder) buildNode(embyMediaID string, jellyRequest
 		return nil, fmt.Errorf("no Emby media item found with id '%s'", embyMediaID)
 	}
 
+	playedBy := []UserWatch{}
+	for _, user := range builder.mediaWatchedBy[embyMediaID] {
+		playedBy = append(playedBy, user)
+	}
+
 	requested := RequestedMedia{
 		JellyseerrID: mediaReq.ID,
 		Name:         media.Name,
@@ -153,7 +160,7 @@ func (builder *requestedMediaBuilder) buildNode(embyMediaID string, jellyRequest
 			Name:   builder.embyUsersByID[mediaReq.RequestedBy.JellyfinUserID].Name,
 			EmbyID: mediaReq.RequestedBy.JellyfinUserID,
 		},
-		PlayedBy:    builder.mediaWatchedBy[embyMediaID],
+		PlayedBy:    playedBy,
 		AvailableAt: *mediaReq.Media.MediaAddedAt,
 	}
 	requestedChildren := []RequestedMedia{}
@@ -226,9 +233,9 @@ func (trasher *Trasher) populateRequestedMediaBuilder(ctx context.Context) (*req
 	})
 
 	// Get watch status for Emby
-	mediaWatchedBy := map[string][]UserWatch{}
+	mediaWatchedBy := map[string]map[string]UserWatch{}
 	for _, id := range leafMediaIDs {
-		mediaWatchedBy[id] = []UserWatch{}
+		mediaWatchedBy[id] = map[string]UserWatch{}
 	}
 
 	for _, user := range embyUsers {
@@ -240,13 +247,17 @@ func (trasher *Trasher) populateRequestedMediaBuilder(ctx context.Context) (*req
 		for _, activity := range userActivity {
 			itemID := fmt.Sprint(activity.ItemID)
 
-			mediaWatchedBy[itemID] = append(mediaWatchedBy[itemID], UserWatch{
+			if _, ok := mediaWatchedBy[itemID]; !ok {
+				continue
+			}
+
+			mediaWatchedBy[itemID][activity.UserID] = UserWatch{
 				User: User{
 					Name:   embyUsersByID[activity.UserID].Name,
 					EmbyID: activity.UserID,
 				},
 				WatchedAt: activity.WatchedAt(),
-			})
+			}
 		}
 	}
 
