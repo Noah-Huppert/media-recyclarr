@@ -68,6 +68,58 @@ type UserWatch struct {
 	WatchedAt time.Time
 }
 
+// UserWatchArray is a list of UserWatch objects
+type UserWatchArray []UserWatch
+
+// MaxWatchedAt gets the newest watched at date from the array
+// Returns nil if the array is empty
+func (arr UserWatchArray) Newest() *UserWatch {
+	if len(arr) == 0 {
+		return nil
+	} else if len(arr) == 1 {
+		return &arr[0]
+	}
+
+	newest := arr[0]
+
+	for _, item := range arr[1:] {
+		if item.WatchedAt.After(newest.WatchedAt) {
+			newest = item
+		}
+	}
+
+	return &newest
+}
+
+// RequestedMediaType is the kind of media
+type RequestedMediaType string
+
+const (
+	Movie   RequestedMediaType = "movie"
+	Series  RequestedMediaType = "series"
+	Season  RequestedMediaType = "season"
+	Episode RequestedMediaType = "episode"
+)
+
+// RequestedMediaTypeFromEmbyType converts an emby media type to a RequestedMediaType
+func RequestedMediaTypeFromEmbyType(embyType string) (*RequestedMediaType, error) {
+	val := Movie
+	switch embyType {
+	case emby.MediaItemTypeMovie:
+		val = Movie
+	case emby.MediaItemTypeSeries:
+		val = Series
+	case emby.MediaItemTypeSeason:
+		val = Season
+	case emby.MediaItemTypeEpisode:
+		val = Episode
+	default:
+		return nil, fmt.Errorf("unknown emby media type '%s' cannot map to RequestedMediaType", embyType)
+	}
+
+	return &val, nil
+}
+
 // RequestedMedia represents a piece of media which exists because it was requested and retrieved
 type RequestedMedia struct {
 	// JellyseerrID is the ID of the request in Jellyseerr
@@ -83,13 +135,34 @@ type RequestedMedia struct {
 	RequestedBy User
 
 	// PlayedBy are users who have played this piece of media
-	PlayedBy []UserWatch
+	PlayedBy UserWatchArray
 
 	// AvailableAt is when the media became available to watch
 	AvailableAt time.Time
 
+	// Type is the kind of media
+	Type RequestedMediaType
+
 	// Children are pieces of media which are encompassed by this piece of media (ex., special features or episodes)
 	Children RequestedMediaArray
+}
+
+// NewestWatched gets the most recent UserWatch out of this node and all its children
+func (media RequestedMedia) NewestWatched() *UserWatch {
+	newest := media.PlayedBy.Newest()
+
+	for _, child := range media.Children {
+		childNewest := child.NewestWatched()
+		if childNewest == nil {
+			continue
+		}
+
+		if newest == nil || childNewest.WatchedAt.After(newest.WatchedAt) {
+			newest = childNewest
+		}
+	}
+
+	return newest
 }
 
 // RequestedMediaArray is a list of RequestedMedia
@@ -99,16 +172,32 @@ func (arr RequestedMediaArray) FormatTree(depth int) []string {
 	out := []string{}
 
 	for _, node := range arr {
-		watchedNames := []string{}
+		watchedStrs := []string{}
 		for _, watched := range node.PlayedBy {
-			watchedNames = append(watchedNames, watched.Name)
+			watchedStrs = append(watchedStrs, fmt.Sprintf("%s %s", watched.Name, watched.WatchedAt))
 		}
 
-		out = append(out, fmt.Sprintf("%s%s (%s)", strings.Repeat("  ", depth), node.Name, strings.Join(watchedNames, ", ")))
+		out = append(out, fmt.Sprintf("%s%s (%s)", strings.Repeat("  ", depth), node.Name, strings.Join(watchedStrs, ", ")))
 		out = append(out, node.Children.FormatTree(depth+1)...)
 	}
 
 	return out
+}
+
+// EmbyIDMap returns a map where keys are emby IDs and values are references to requested media
+func (arr RequestedMediaArray) EmbyIDMap() map[string]*RequestedMedia {
+	idMap := map[string]*RequestedMedia{}
+
+	for _, media := range arr {
+		idMap[media.EmbyID] = &media
+
+		childMap := media.Children.EmbyIDMap()
+		for id, childMedia := range childMap {
+			idMap[id] = childMedia
+		}
+	}
+
+	return idMap
 }
 
 // requestedMediaBuilder builds a tree of RequestedMedia
@@ -137,6 +226,7 @@ type requestedMediaBuilder struct {
 
 // buildNode creates a RequestedMedia object for the specified emby media
 func (builder *requestedMediaBuilder) buildNode(embyMediaID string, jellyRequestID uint) (*RequestedMedia, error) {
+	// Ensure media is found in our intermediary structures
 	mediaReq, ok := builder.mediaRequestsByID[jellyRequestID]
 	if !ok {
 		return nil, fmt.Errorf("no Jellyseer media request found with id '%s'", jellyRequestID)
@@ -147,9 +237,15 @@ func (builder *requestedMediaBuilder) buildNode(embyMediaID string, jellyRequest
 		return nil, fmt.Errorf("no Emby media item found with id '%s'", embyMediaID)
 	}
 
+	// Assemble
 	playedBy := []UserWatch{}
 	for _, user := range builder.mediaWatchedBy[embyMediaID] {
 		playedBy = append(playedBy, user)
+	}
+
+	mediaType, err := RequestedMediaTypeFromEmbyType(media.Type)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get media type: %s", err)
 	}
 
 	requested := RequestedMedia{
@@ -161,6 +257,7 @@ func (builder *requestedMediaBuilder) buildNode(embyMediaID string, jellyRequest
 			EmbyID: mediaReq.RequestedBy.JellyfinUserID,
 		},
 		PlayedBy:    playedBy,
+		Type:        *mediaType,
 		AvailableAt: *mediaReq.Media.MediaAddedAt,
 	}
 	requestedChildren := []RequestedMedia{}
@@ -287,8 +384,47 @@ func (trasher *Trasher) GetRequestedMedia(ctx context.Context) (RequestedMediaAr
 }
 
 // GetExpiredMedia returns all RequestedMedia which has passed the expired deadline
-func (trasher *Trasher) GetExpiredMedia(ctx context.Context) ([]RequestedMedia, error) {
-	// TODO: Find newest watch time for every media item
-	// TODO: Find media items which haven't been watched recently enough
-	return nil, nil
+func (trasher *Trasher) GetExpiredMedia(ctx context.Context, requestedMedia RequestedMediaArray) (RequestedMediaArray, error) {
+	requestedMediaByEmbyID := requestedMedia.EmbyIDMap()
+
+	// Get newest watch for each parent piece of media
+	// Also get newest watch for any seasons
+	newestWatchForEmbyID := map[string]*UserWatch{}
+	for _, mediaReq := range requestedMedia {
+		newestWatchForEmbyID[mediaReq.EmbyID] = mediaReq.NewestWatched()
+
+		// Get newest watch for any seasons too
+		if mediaReq.Type != Series {
+			continue
+		}
+
+		for _, childMediaReq := range mediaReq.Children {
+			if childMediaReq.Type != Season {
+				continue
+			}
+
+			newestWatchForEmbyID[childMediaReq.EmbyID] = childMediaReq.NewestWatched()
+		}
+	}
+
+	// Find media which hasn't been watched in too long
+	now := time.Now()
+	expiredMediaReqs := []RequestedMedia{}
+
+	for embyID, newestWatch := range newestWatchForEmbyID {
+		mediaReq := requestedMediaByEmbyID[embyID]
+
+		// If hasn't been watched and available too long
+		if newestWatch == nil {
+			if now.Sub(mediaReq.AvailableAt) > trasher.expireAfter {
+				// Never watched
+				expiredMediaReqs = append(expiredMediaReqs, *mediaReq)
+			}
+		} else if now.Sub(newestWatch.WatchedAt) > trasher.expireAfter {
+			// Watched too long ago
+			expiredMediaReqs = append(expiredMediaReqs, *mediaReq)
+		}
+	}
+
+	return expiredMediaReqs, nil
 }

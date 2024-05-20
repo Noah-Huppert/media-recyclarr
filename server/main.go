@@ -4,6 +4,7 @@ import (
 	"context"
 	stdLog "log"
 	"strings"
+	"time"
 
 	"github.com/Noah-Huppert/gointerrupt"
 	"github.com/Noah-Huppert/media-recyclarr/emby"
@@ -57,13 +58,20 @@ func main() {
 		Logger:      log.Named("trasher"),
 		EmbyClient:  embyClient,
 		JellyClient: jellyClient,
+		ExpireAfter: time.Hour * 24 * 30, // 30 days
 	})
 
 	reqMedia, err := trasher.GetRequestedMedia(ctxPair.Graceful())
 	if err != nil {
 		log.Fatal("failed to get requested media", zap.Error(err))
 	}
-	for _, line := range reqMedia.FormatTree(0) {
+
+	expiredMedia, err := trasher.GetExpiredMedia(ctxPair.Graceful(), reqMedia)
+	if err != nil {
+		log.Fatal("failed to get expired media", zap.Error(err))
+	}
+
+	for _, line := range expiredMedia.FormatTree(0) {
 		log.Debug(line)
 	}
 }
