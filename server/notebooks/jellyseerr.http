@@ -1,4 +1,12 @@
 ﻿# https://api-docs.overseerr.dev/
-### Get requests
-GET {{ uri }}/api/v1/request?filter=available&take=20
+### Get requests - Available
+GET {{ uri }}/api/v1/request?filter=available&take=40
+X-Api-Key: {{ api_key }}
+
+### Get requests - All
+GET {{ uri }}/api/v1/request?take=40
+X-Api-Key: {{ api_key }}
+
+### Get tv
+GET {{ uri }}/api/v1/tv/125
 X-Api-Key: {{ api_key }}

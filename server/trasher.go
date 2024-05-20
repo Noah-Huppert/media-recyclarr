@@ -117,8 +117,8 @@ type requestedMediaBuilder struct {
 	// mediaRequests are Jellyseerr media requests
 	mediaRequests []jelly.MediaRequest
 
-	// mediaRequestsByID is a map of jellyseerr media requests references organized by emby media ID
-	mediaRequestsByID map[string]*jelly.MediaRequest
+	// mediaRequestsByID is a map of jellyseerr media requests references organized by ID
+	mediaRequestsByID map[uint]*jelly.MediaRequest
 
 	// embyUsersByID is a map of emby users where keys are user IDs
 	embyUsersByID map[string]emby.User
@@ -134,10 +134,10 @@ type requestedMediaBuilder struct {
 }
 
 // buildNode creates a RequestedMedia object for the specified emby media
-func (builder *requestedMediaBuilder) buildNode(embyMediaID string) (*RequestedMedia, error) {
-	mediaReq, ok := builder.mediaRequestsByID[embyMediaID]
+func (builder *requestedMediaBuilder) buildNode(embyMediaID string, jellyRequestID uint) (*RequestedMedia, error) {
+	mediaReq, ok := builder.mediaRequestsByID[jellyRequestID]
 	if !ok {
-		return nil, fmt.Errorf("no Jellyseer media request found for Emby media id '%s'", embyMediaID)
+		return nil, fmt.Errorf("no Jellyseer media request found with id '%s'", jellyRequestID)
 	}
 
 	media, ok := builder.mediaTreeIDMap[embyMediaID]
@@ -154,12 +154,12 @@ func (builder *requestedMediaBuilder) buildNode(embyMediaID string) (*RequestedM
 			EmbyID: mediaReq.RequestedBy.JellyfinUserID,
 		},
 		PlayedBy:    builder.mediaWatchedBy[embyMediaID],
-		AvailableAt: mediaReq.Media.MediaAddedAt,
+		AvailableAt: *mediaReq.Media.MediaAddedAt,
 	}
 	requestedChildren := []RequestedMedia{}
 
 	for _, mediaChild := range media.Children {
-		child, err := builder.buildNode(mediaChild.ID)
+		child, err := builder.buildNode(mediaChild.ID, jellyRequestID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to build requested media item emby media item '%s' (Child of emby media item '%s'): %s", mediaChild.ID, media.ID, err)
 		}
@@ -177,7 +177,7 @@ func (builder *requestedMediaBuilder) buildTree() (RequestedMediaArray, error) {
 	children := []RequestedMedia{}
 
 	for _, jellyReq := range builder.mediaRequests {
-		child, err := builder.buildNode(jellyReq.Media.JellyfinMediaID)
+		child, err := builder.buildNode(jellyReq.Media.JellyfinMediaID, jellyReq.ID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create RequestedMedia object for Emby media '%s': %s", jellyReq.Media.JellyfinMediaID, err)
 		}
@@ -197,10 +197,10 @@ func (trasher *Trasher) populateRequestedMediaBuilder(ctx context.Context) (*req
 		return nil, fmt.Errorf("failed to get media requests: %s", err)
 	}
 
-	mediaRequestsByID := map[string]*jelly.MediaRequest{}
+	mediaRequestsByID := map[uint]*jelly.MediaRequest{}
 
 	for _, req := range mediaRequests {
-		mediaRequestsByID[req.Media.JellyfinMediaID] = &req
+		mediaRequestsByID[req.ID] = &req
 	}
 
 	// Get emby users

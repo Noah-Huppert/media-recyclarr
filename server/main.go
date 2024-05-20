@@ -63,5 +63,7 @@ func main() {
 	if err != nil {
 		log.Fatal("failed to get requested media", zap.Error(err))
 	}
-	log.Debug("requested media", zap.String("Tree", strings.Join(reqMedia.FormatTree(0), "\n")))
+	for _, line := range reqMedia.FormatTree(0) {
+		log.Debug(line)
+	}
 }

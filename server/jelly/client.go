@@ -101,9 +101,9 @@ type MediaRequest struct {
 	ID    uint   `json:"id" validate:"required"`
 	Type  string `json:"type" validate:"required,oneof=movie tv"`
 	Media struct {
-		ID              uint      `json:"id" validate:"required"`
-		JellyfinMediaID string    `json:"jellyfindMediaId" validate:"required"`
-		MediaAddedAt    time.Time `json:"mediaAddedAt" validate:"required"`
+		ID              uint       `json:"id" validate:"required"`
+		JellyfinMediaID string     `json:"jellyfinMediaId" validate:"required"`
+		MediaAddedAt    *time.Time `json:"mediaAddedAt" validate:"required"`
 	} `json:"media" validate:"required"`
 	RequestedBy struct {
 		ID             uint   `json:"id" validate:"required"`
@@ -112,6 +112,7 @@ type MediaRequest struct {
 }
 
 // GetAvailableMediaRequestsPage gets a page of media requests
+// Filtering by available in the API endpoint doesn't account for partially available media (it's not returned)
 func (client *JellyClient) GetAvailableMediaRequestsPage(ctx context.Context, take, skip int) (*PaginatedResp[MediaRequest], error) {
 	var resp PaginatedResp[MediaRequest]
 
@@ -120,15 +121,25 @@ func (client *JellyClient) GetAvailableMediaRequestsPage(ctx context.Context, ta
 		Method: "GET",
 		Path:   "/api/v1/request",
 		QueryParams: map[string]string{
-			"take":   fmt.Sprint(take),
-			"skip":   fmt.Sprint(skip),
-			"filter": "available",
+			"take": fmt.Sprint(take),
+			"skip": fmt.Sprint(skip),
 		},
 		Resp: &resp,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %s", err)
 	}
+
+	// Filter out not available media
+	newResults := []MediaRequest{}
+	for _, req := range resp.Results {
+		if req.Media.MediaAddedAt == nil {
+			continue
+		}
+		newResults = append(newResults, req)
+	}
+
+	resp.Results = newResults
 
 	return &resp, nil
 }
