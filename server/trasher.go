@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go.uber.org/zap"
+	"strings"
 	"time"
 
 	"github.com/Noah-Huppert/media-recyclarr/emby"
@@ -88,7 +89,26 @@ type RequestedMedia struct {
 	AvailableAt time.Time
 
 	// Children are pieces of media which are encompassed by this piece of media (ex., special features or episodes)
-	Children []RequestedMedia
+	Children RequestedMediaArray
+}
+
+// RequestedMediaArray is a list of RequestedMedia
+type RequestedMediaArray []RequestedMedia
+
+func (arr RequestedMediaArray) FormatTree(depth int) []string {
+	out := []string{}
+
+	for _, node := range arr {
+		watchedNames := []string{}
+		for _, watched := range node.PlayedBy {
+			watchedNames = append(watchedNames, watched.Name)
+		}
+
+		out = append(out, fmt.Sprintf("%s%s (%s)", strings.Repeat("  ", depth), node.Name, strings.Join(watchedNames, ", ")))
+		out = append(out, node.Children.FormatTree(depth+1)...)
+	}
+
+	return out
 }
 
 // requestedMediaBuilder builds a tree of RequestedMedia
@@ -153,7 +173,7 @@ func (builder *requestedMediaBuilder) buildNode(embyMediaID string) (*RequestedM
 }
 
 // buildTree creates a RequestedMedia object for each known piece of media
-func (builder *requestedMediaBuilder) buildTree() ([]RequestedMedia, error) {
+func (builder *requestedMediaBuilder) buildTree() (RequestedMediaArray, error) {
 	children := []RequestedMedia{}
 
 	for _, jellyReq := range builder.mediaRequests {
@@ -180,7 +200,7 @@ func (trasher *Trasher) populateRequestedMediaBuilder(ctx context.Context) (*req
 	mediaRequestsByID := map[string]*jelly.MediaRequest{}
 
 	for _, req := range mediaRequests {
-		mediaRequestsByID[req.Media.JellyfinMediaID] = req
+		mediaRequestsByID[req.Media.JellyfinMediaID] = &req
 	}
 
 	// Get emby users
@@ -241,7 +261,7 @@ func (trasher *Trasher) populateRequestedMediaBuilder(ctx context.Context) (*req
 }
 
 // GetRequestedMedia returns RequestedMedia
-func (trasher *Trasher) GetRequestedMedia(ctx context.Context) ([]RequestedMedia, error) {
+func (trasher *Trasher) GetRequestedMedia(ctx context.Context) (RequestedMediaArray, error) {
 	builder, err := trasher.populateRequestedMediaBuilder(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to gather information about media: %s", err)

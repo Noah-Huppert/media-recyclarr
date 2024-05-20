@@ -59,7 +59,9 @@ func main() {
 		JellyClient: jellyClient,
 	})
 
-	if _, err := trasher.GetRequestedMedia(ctxPair.Graceful()); err != nil {
+	reqMedia, err := trasher.GetRequestedMedia(ctxPair.Graceful())
+	if err != nil {
 		log.Fatal("failed to get requested media", zap.Error(err))
 	}
+	log.Debug("requested media", zap.String("Tree", strings.Join(reqMedia.FormatTree(0), "\n")))
 }
