@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"go.uber.org/zap"
-	"strings"
 	"time"
 
 	"github.com/Noah-Huppert/media-recyclarr/emby"
@@ -84,13 +83,6 @@ type RequestedMedia struct {
 	Children []RequestedMedia
 }
 
-func (trasher *Trasher) printMediaTree(root emby.MediaItemNode, depth int) {
-	trasher.logger.Debug(fmt.Sprintf("%s%s (%s, %s)", strings.Repeat(" ", depth), root.Name, root.Type, root.ID))
-	for _, child := range root.Children {
-		trasher.printMediaTree(child, depth+1)
-	}
-}
-
 // GetRequestedMedia returns RequestedMedia
 func (trasher *Trasher) GetRequestedMedia(ctx context.Context) ([]RequestedMedia, error) {
 	// Find media requests in Jellyseerr
@@ -112,22 +104,48 @@ func (trasher *Trasher) GetRequestedMedia(ctx context.Context) ([]RequestedMedia
 		})
 	}
 
-	// TODO: Get list of users from Emby
-	// TODO: Build tree of media items (call emby.ListShowEpisodes() for tv shows)
-	// TODO: Get watch status for every user for every media item
+	// Get emby users
+	embyUsers, err := trasher.embyClient.ListUsers(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get list of emby users: %s", err)
+	}
+	
 	// TODO: Find newest watch time for every media item
 	// TODO: Find media items which haven't been watched recently enough
+	// Get tree of all media
 	trasher.logger.Debug("getting media tree")
 	children, err := trasher.embyClient.GetMediaTree(ctx, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to retrieve media tree: %s", err)
 	}
+	leafMediaIDs := children.CollectIDs([]string{
+		emby.MediaItemTypeEpisode,
+		emby.MediaItemTypeMovie,
+	})
 
-	for _, child := range children {
-		trasher.printMediaTree(child, 0)
+	mediaWatchedByUserIDs := map[string][]string{}
+	for _, id := range leafMediaIDs {
+		mediaWatchedByUserIDs[id] = []string{}
 	}
 
 	// Get watch status from Emby
+	for _, user := range embyUsers {
+		// Get user media items
+		trueVal := true
+		playedUserItems, err := trasher.embyClient.ListUserMediaItems(ctx, user.ID, emby.ListUserMediaItemsFilterOpts{
+			IDs:      leafMediaIDs,
+			IsPlayed: &trueVal,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to get emby user media items for user '%s' (%s): %s", user.Name, user.ID, err)
+		}
+
+		// Record if a user has watched
+		for _, userItem := range playedUserItems {
+			mediaWatchedByUserIDs[userItem.ID] = append(mediaWatchedByUserIDs[userItem.ID], user.ID)
+		}
+	}
+
 	return nil, nil
 }
 

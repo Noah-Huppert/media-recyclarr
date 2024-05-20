@@ -153,21 +153,47 @@ type UserMediaItem struct {
 	} `validate:"required"`
 }
 
+// UserMediaItemArray is a list of UserMediaItem
+type UserMediaItemArray []UserMediaItem
+
+// CollectAllIDs returns the IDs of all the UserMediaItem objects
+func (arr UserMediaItemArray) CollectAllIDs() []string {
+	ids := []string{}
+
+	for _, item := range arr {
+		ids = append(ids, item.ID)
+	}
+
+	return ids
+}
+
+// ListUserMediaItemsFilterOpts are filter options for ListUserMediaItems()
+type ListUserMediaItemsFilterOpts struct {
+	// IDs filter by IDs
+	IDs []string
+
+	// IsPlayed filters by media items which have been played by the user
+	IsPlayed *bool
+}
+
 // ListUserMediaItems retrieves user details about media items
-func (client *EmbyClient) ListUserMediaItems(ctx context.Context, userID string, ids []string) ([]UserMediaItem, error) {
-	if len(ids) == 0 {
-		return nil, fmt.Errorf("ids cannot be empty")
+func (client *EmbyClient) ListUserMediaItems(ctx context.Context, userID string, filter ListUserMediaItemsFilterOpts) (UserMediaItemArray, error) {
+	queryParams := map[string]string{}
+
+	if filter.IDs != nil {
+		queryParams["Ids"] = strings.Join(filter.IDs, ",")
+	}
+	if filter.IsPlayed != nil {
+		queryParams["IsPlayed"] = fmt.Sprint(*filter.IsPlayed)
 	}
 
 	var resp PaginatableResponse[UserMediaItem]
 	err := client.apiClient.MakeRequest(restclient.MakeRequestOpts{
-		Ctx:    ctx,
-		Method: "GET",
-		Path:   fmt.Sprintf("/emby/Users/%s/items", userID),
-		QueryParams: map[string]string{
-			"Ids": strings.Join(ids, ","),
-		},
-		Resp: &resp,
+		Ctx:         ctx,
+		Method:      "GET",
+		Path:        fmt.Sprintf("/emby/Users/%s/items", userID),
+		QueryParams: queryParams,
+		Resp:        &resp,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %s", err)
@@ -266,20 +292,23 @@ type MediaItemNode struct {
 	MediaItem
 
 	// Children are media items which belong to the parent media item, like episodes of a season
-	Children []MediaItemNode
+	Children MediaItemNodeArray
 }
 
 // NewMediaItemNode makes a new MediaItemNode from a MediaItem
 func NewMediaItemNode(item MediaItem) MediaItemNode {
 	return MediaItemNode{
 		MediaItem: item,
-		Children:  []MediaItemNode{},
+		Children:  MediaItemNodeArray{},
 	}
 }
 
+// MediaItemNodeArray is a list of media item nodes
+type MediaItemNodeArray []MediaItemNode
+
 // NewMediaItemNodeArray makes a new array of MediaItemNode from an array of MediaItem
-func NewMediaItemNodeArray(items []MediaItem) []MediaItemNode {
-	nodes := []MediaItemNode{}
+func NewMediaItemNodeArray(items []MediaItem) MediaItemNodeArray {
+	nodes := MediaItemNodeArray{}
 
 	for _, one_item := range items {
 		nodes = append(nodes, NewMediaItemNode(one_item))
@@ -288,10 +317,59 @@ func NewMediaItemNodeArray(items []MediaItem) []MediaItemNode {
 	return nodes
 }
 
+// CollectIDs returns the IDs of all media node items.
+// If filterType is not nil then will only include IDs of media items of those types. Just because a parent doesn't match a filter type doesn't mean its children's IDs won't be collected
+func (arr MediaItemNodeArray) CollectIDs(filterType []string) []string {
+	// Build hashmap so filter check is not a linear search of an array
+	var filterTypeMap map[string]interface{} = nil
+	if filterType != nil {
+		filterTypeMap = map[string]interface{}{}
+		for _, key := range filterType {
+			filterTypeMap[key] = nil
+		}
+	}
+
+	// Collect IDs
+	ids := []string{}
+	for _, item := range arr {
+		// Collect children Ids before filtering
+		ids = append(ids, item.Children.CollectIDs(filterType)...)
+
+		// Filter item based on type
+		if filterTypeMap != nil {
+			if _, ok := filterTypeMap[item.Type]; !ok {
+				continue
+			}
+		}
+
+		ids = append(ids, item.ID)
+	}
+
+	return ids
+}
+
+// MediaItemNodeIDMap organizes a tree of MediaItemNode objects by ID
+type MediaItemNodeIDMap map[string]*MediaItemNode
+
+// MediaItemNodeIDMap creates a MediaItemNodeIDMap from a MediaItemNodeArray
+func (arr MediaItemNodeArray) MediaItemNodeIDMap() map[string]*MediaItemNode {
+	idMap := map[string]*MediaItemNode{}
+
+	for _, item := range arr {
+		idMap[item.ID] = &item
+
+		for childID, childPtr := range item.Children.MediaItemNodeIDMap() {
+			idMap[childID] = childPtr
+		}
+	}
+
+	return idMap
+}
+
 // GetMediaTree recursively retrieves all the media items and their children
 // Optionally parent can be specified to start building the tree with the children of the specified media item
-func (client *EmbyClient) GetMediaTree(ctx context.Context, parent *MediaItemNode) ([]MediaItemNode, error) {
-	children := []MediaItemNode{}
+func (client *EmbyClient) GetMediaTree(ctx context.Context, parent *MediaItemNode) (MediaItemNodeArray, error) {
+	children := MediaItemNodeArray{}
 
 	// Either get all media items or start with parent
 	if parent == nil {

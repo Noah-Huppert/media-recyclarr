@@ -27,6 +27,18 @@ X-Emby-Token: {{ api_key }}
 GET {{ uri }}/emby/Users/c6a110fe2fa54c1a9ba497bcf1d4cb91/Items?Ids=4033
 X-Emby-Token: {{ api_key }}
 
+### GET Items - For Noah - Dr Who S06E01
+# User ID = noah
+# Dr Who S06E01 ID = 4033
+GET {{ uri }}/emby/Users/c6a110fe2fa54c1a9ba497bcf1d4cb91/Items?Ids=4033
+X-Emby-Token: {{ api_key }}
+
+### GET Items Played - For Noah - Dr Who S07E13
+# User ID = noah
+# Dr Who S07E13 ID = 4932
+GET {{ uri }}/emby/Users/c6a110fe2fa54c1a9ba497bcf1d4cb91/Items?Ids=4932
+X-Emby-Token: {{ api_key }}
+
 ### Get Items - For Noah - Lord of the Rings The Two Towers
 # User ID = noah
 # LOTR #2 ID = 4697
@@ -50,4 +62,18 @@ X-Emby-Token: {{ api_key }}
 
 ### GET Users
 GET {{ uri }}/emby/Users/Query
+X-Emby-Token: {{ api_key }}
+
+### GET Activity Log
+GET {{ uri }}/emby/System/ActivityLog/Entries
+X-Emby-Token: {{ api_key }}
+
+### GET User Activity - For Noah - Play List
+# User ID = noah
+GET {{ uri }}/emby/user_usage_stats/UserPlaylist?user_id=c6a110fe2fa54c1a9ba497bcf1d4cb91&aggregate_data=false&days=23
+X-Emby-Token: {{ api_key }}
+
+### GET User Activity - For Noah - Play List - All Time
+# User ID = noah
+GET {{ uri }}/emby/user_usage_stats/UserPlaylist?user_id=c6a110fe2fa54c1a9ba497bcf1d4cb91&days=19862
 X-Emby-Token: {{ api_key }}
