@@ -215,7 +215,7 @@ func (c *APIClient) MakeRequest(opts MakeRequestOpts) error {
 		if shouldValidate {
 			err = c.validator.StructCtx(opts.Ctx, opts.Resp)
 			if err != nil {
-				return fmt.Errorf("failed to validate response: %s", err)
+				return fmt.Errorf("failed to validate response body '%s': %s", respBody, err)
 			}
 		}
 	}
