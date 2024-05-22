@@ -58,12 +58,12 @@ type PaginatableResponse[Item interface{}] struct {
 	Items []Item `validate:"required"`
 
 	// TotalRecordCount is the total number of items available
-	TotalRecordCount int `validate:"required"`
+	TotalRecordCount *int `validate:"required"`
 }
 
 // CheckItemsCount ensures that all the items where returned in one page. As right now we don't implement pagination.
 func (resp PaginatableResponse[Item]) CheckItemsCount() error {
-	if resp.TotalRecordCount != len(resp.Items) {
+	if *resp.TotalRecordCount != len(resp.Items) {
 		return fmt.Errorf("no pagination configured but results do not contain all items")
 	}
 
