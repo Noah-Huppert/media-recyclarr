@@ -66,7 +66,7 @@ func main() {
 		log.Fatal("failed to get requested media", zap.Error(err))
 	}
 
-	expiredMedia, err := trasher.GetExpiredMedia(ctxPair.Graceful(), reqMedia)
+	expiredMedia, err := trasher.GetMediaToDelete(ctxPair.Graceful(), reqMedia)
 	if err != nil {
 		log.Fatal("failed to get expired media", zap.Error(err))
 	}

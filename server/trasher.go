@@ -147,12 +147,12 @@ type RequestedMedia struct {
 	Children RequestedMediaArray
 }
 
-// NewestWatched gets the most recent UserWatch out of this node and all its children
-func (media RequestedMedia) NewestWatched() *UserWatch {
+// RecursiveNewestWatched gets the most recent UserWatch out of this node and all its children
+func (media RequestedMedia) RecursiveNewestWatched() *UserWatch {
 	newest := media.PlayedBy.Newest()
 
 	for _, child := range media.Children {
-		childNewest := child.NewestWatched()
+		childNewest := child.RecursiveNewestWatched()
 		if childNewest == nil {
 			continue
 		}
@@ -163,6 +163,61 @@ func (media RequestedMedia) NewestWatched() *UserWatch {
 	}
 
 	return newest
+}
+
+// WatchedAllChildren indicates which users have watched the requested media or all the children
+// This is useful for figuring out if a user has watched all the episodes in a season when the season itself isn't marked as watched
+// Returns users who have watched all children
+// Only looks down one level deep
+func (media RequestedMedia) WatchedAllChildren() []User {
+	usersByEmbyID := map[string]User{}
+
+	// Figure out which users have watched which children
+	// First level keys are user IDs, second level keys are media IDs
+	userWatched := map[string]map[string]interface{}{}
+	allChildEmbyIDs := []string{}
+	for _, child := range media.Children {
+		allChildEmbyIDs = append(allChildEmbyIDs, child.EmbyID)
+
+		for _, userWatch := range child.PlayedBy {
+			// Ensure there is an entry for the user
+			if _, ok := userWatched[userWatch.EmbyID]; !ok {
+				userWatched[userWatch.EmbyID] = map[string]interface{}{}
+			}
+
+			usersByEmbyID[userWatch.EmbyID] = userWatch.User
+
+			// Record that the user watched this child
+			userWatched[userWatch.EmbyID][child.EmbyID] = nil
+		}
+	}
+
+	// Find users who have watched all children
+	userWatchedAllChildren := map[string]bool{}
+	for userID, watchedEmbyIDs := range userWatched {
+	loopChildMedia:
+		for _, mediaEmbyID := range allChildEmbyIDs {
+			_, userWatchedChild := watchedEmbyIDs[mediaEmbyID]
+
+			if !userWatchedChild {
+				userWatchedAllChildren[userID] = false
+				break loopChildMedia
+			}
+
+			userWatchedAllChildren[userID] = true
+		}
+	}
+
+	resultUsers := []User{}
+	for userID, watchedAllChildren := range userWatchedAllChildren {
+		if !watchedAllChildren {
+			continue
+		}
+
+		resultUsers = append(resultUsers, usersByEmbyID[userID])
+	}
+
+	return resultUsers
 }
 
 // RequestedMediaArray is a list of RequestedMedia
@@ -336,15 +391,46 @@ func (trasher *Trasher) populateRequestedMediaBuilder(ctx context.Context) (*req
 	}
 
 	for _, user := range embyUsers {
+		// Find media which user has watched
+		trueVal := true
+		userMedia, err := trasher.embyClient.ListUserMediaItems(ctx, user.ID, emby.ListUserMediaItemsFilterOpts{
+			IDs:      leafMediaIDs,
+			IsPlayed: &trueVal,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to get Emby user media items for user '%s' (%s): %s", user.Name, user.ID, err)
+		}
+
+		watchedByUser := map[string]interface{}{}
+		for _, media := range userMedia {
+			if !media.UserData.Played {
+				continue
+			}
+
+			watchedByUser[media.ID] = nil
+		}
+
+		// Find when media was watched by user
 		userActivity, err := trasher.embyClient.ListUserPlayActivity(ctx, user.ID, nil)
 		if err != nil {
-			return nil, fmt.Errorf("failed to Emby get user play activity for user '%s' (%s): %s", user.Name, user.ID, err)
+			return nil, fmt.Errorf("failed to get Emby user play activity for user '%s' (%s): %s", user.Name, user.ID, err)
 		}
 
 		for _, activity := range userActivity {
 			itemID := fmt.Sprint(activity.ItemID)
 
 			if _, ok := mediaWatchedBy[itemID]; !ok {
+				// Media item is not one we are care about (ex., a type of parent media like series or season, not requested)
+				continue
+			}
+
+			if _, ok := watchedByUser[itemID]; !ok {
+				// Media item was not fully played by user
+				continue
+			}
+
+			if userWatch, ok := mediaWatchedBy[itemID][activity.UserID]; ok && userWatch.WatchedAt.After(activity.WatchedAt()) {
+				// We have already found a user play activity that is more recent
 				continue
 			}
 
@@ -383,48 +469,91 @@ func (trasher *Trasher) GetRequestedMedia(ctx context.Context) (RequestedMediaAr
 	return requested, nil
 }
 
-// GetExpiredMedia returns all RequestedMedia which has passed the expired deadline
-func (trasher *Trasher) GetExpiredMedia(ctx context.Context, requestedMedia RequestedMediaArray) (RequestedMediaArray, error) {
+// GetMediaToDelete returns all RequestedMedia which has passed the expired deadline or has been fully watched by the requester
+func (trasher *Trasher) GetMediaToDelete(ctx context.Context, requestedMedia RequestedMediaArray) (RequestedMediaArray, error) {
 	requestedMediaByEmbyID := requestedMedia.EmbyIDMap()
 
-	// Get newest watch for each parent piece of media
-	// Also get newest watch for any seasons
-	newestWatchForEmbyID := map[string]*UserWatch{}
+	// Find top level media request nodes
+	// This includes: movies, series, seasons
+	// We don't want to check individual episodes because we don't want to delete individual episodes until a season is watched
+	checkEmbyIDs := []string{}
 	for _, mediaReq := range requestedMedia {
-		newestWatchForEmbyID[mediaReq.EmbyID] = mediaReq.NewestWatched()
-
-		// Get newest watch for any seasons too
-		if mediaReq.Type != Series {
-			continue
+		if mediaReq.Type == Movie || mediaReq.Type == Series {
+			checkEmbyIDs = append(checkEmbyIDs, mediaReq.EmbyID)
 		}
 
+		// Also gather and seasons
 		for _, childMediaReq := range mediaReq.Children {
-			if childMediaReq.Type != Season {
-				continue
+			if childMediaReq.Type == Season {
+				checkEmbyIDs = append(checkEmbyIDs, childMediaReq.EmbyID)
 			}
-
-			newestWatchForEmbyID[childMediaReq.EmbyID] = childMediaReq.NewestWatched()
 		}
 	}
 
-	// Find media which hasn't been watched in too long
-	now := time.Now()
-	expiredMediaReqs := []RequestedMedia{}
+	// Get newest watch for each piece of media
+	recNewestWatchForEmbyID := map[string]*UserWatch{}
+	for _, embyID := range checkEmbyIDs {
+		mediaReq := requestedMediaByEmbyID[embyID]
 
-	for embyID, newestWatch := range newestWatchForEmbyID {
+		recNewestWatchForEmbyID[mediaReq.EmbyID] = mediaReq.RecursiveNewestWatched()
+	}
+
+	// Get if all the children were watched
+	// First level keys are media request emby IDs, second level keys are user IDs
+	recWatchedAllChildrenForEmbyID := map[string]map[string]User{}
+	for _, embyID := range checkEmbyIDs {
+		mediaReq := requestedMediaByEmbyID[embyID]
+
+		recWatchedAllChildrenForEmbyID[mediaReq.EmbyID] = map[string]User{}
+
+		for _, user := range mediaReq.WatchedAllChildren() {
+			recWatchedAllChildrenForEmbyID[mediaReq.EmbyID][user.EmbyID] = user
+		}
+	}
+
+	// Find media which hasn't been watched in too long or is done watching
+	now := time.Now()
+	expiredMediaReqsByEmbyID := map[string]RequestedMedia{}
+
+	for embyID, newestWatch := range recNewestWatchForEmbyID {
 		mediaReq := requestedMediaByEmbyID[embyID]
 
 		// If hasn't been watched and available too long
 		if newestWatch == nil {
 			if now.Sub(mediaReq.AvailableAt) > trasher.expireAfter {
 				// Never watched
-				expiredMediaReqs = append(expiredMediaReqs, *mediaReq)
+				expiredMediaReqsByEmbyID[mediaReq.EmbyID] = *mediaReq
 			}
 		} else if now.Sub(newestWatch.WatchedAt) > trasher.expireAfter {
 			// Watched too long ago
-			expiredMediaReqs = append(expiredMediaReqs, *mediaReq)
+			expiredMediaReqsByEmbyID[mediaReq.EmbyID] = *mediaReq
 		}
 	}
 
-	return expiredMediaReqs, nil
+	// Find media which has been fully watched
+	finishedMediaReqsByEmbyID := map[string]RequestedMedia{}
+	for embyID, userWatchMap := range recWatchedAllChildrenForEmbyID {
+		mediaReq := requestedMediaByEmbyID[embyID]
+
+		if _, ok := userWatchMap[mediaReq.RequestedBy.EmbyID]; ok {
+			finishedMediaReqsByEmbyID[mediaReq.EmbyID] = *mediaReq
+		}
+	}
+
+	// Create array
+	resultsByEmbyID := map[string]RequestedMedia{}
+	for embyID, mediaReq := range expiredMediaReqsByEmbyID {
+		resultsByEmbyID[embyID] = mediaReq
+	}
+
+	for embyID, mediaReq := range finishedMediaReqsByEmbyID {
+		resultsByEmbyID[embyID] = mediaReq
+	}
+
+	resArray := []RequestedMedia{}
+	for _, mediaReq := range resultsByEmbyID {
+		resArray = append(resArray, mediaReq)
+	}
+
+	return resArray, nil
 }
