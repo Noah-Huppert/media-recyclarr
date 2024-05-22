@@ -7,13 +7,18 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "api-client:download-spec": "curl ${MEDIA_RECYCLARR_HTTP_API_URI:-http://localhost:5000}/openapi.json -o ./src/api/openapi/openapi.json",
+    "api-client:generate": "openapi-generator generate --config src/api/openapi/openapi-config.yml",
+    "api-client:clean": "test -d ./src/api/client && rm -rf ./src/api/client",
+    "api-client:dev": "npm run api-client:clean && npm run api-client:download-spec && npm run api-client:generate"
   },
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.13.4",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@vitejs/plugin-react": "^4.2.1",
