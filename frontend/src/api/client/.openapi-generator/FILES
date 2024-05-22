@@ -1,0 +1,10 @@
+.gitignore
+.openapi-generator-ignore
+api.ts
+api/apis.ts
+api/healthApi.ts
+git_push.sh
+model/epHealthRespBody.ts
+model/errorDetail.ts
+model/errorModel.ts
+model/models.ts
