@@ -119,8 +119,7 @@ func (h HTTPAPI) registerEndpoints() {
 type epHealthResp struct {
 	// Body response
 	Body struct {
-		// Ok indicates if the server is okay
-		Ok bool `json:"ok"`
+		Ok bool `json:"ok" doc:"Indicates if the server is okay"`
 	}
 }
 
