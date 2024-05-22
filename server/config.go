@@ -19,6 +19,9 @@ type Config struct {
 
 	// JellyseerrAPIKey is the API key used to authenticate with Jellyseerr
 	JellyseerrAPIKey string `env:"JELLYSEERR_API_KEY,required"`
+
+	// HTTPAPIAddress is the network address on which the HTTP API will listen
+	HTTPAPIAddress string `env:"HTTP_API_ADDRESS,required" envDefault:":5000"`
 }
 
 // LoadConfig loads configuration from environment variables.

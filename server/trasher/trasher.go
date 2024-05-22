@@ -1,4 +1,4 @@
-package main
+package trasher
 
 import (
 	"context"

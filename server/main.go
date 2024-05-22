@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"github.com/Noah-Huppert/media-recyclarr/httpapi"
+	"github.com/Noah-Huppert/media-recyclarr/trasher"
 	stdLog "log"
 	"strings"
 	"time"
@@ -36,6 +38,7 @@ func main() {
 		log.Fatal("failed to load configuration", zap.Error(err))
 	}
 
+	// Setup Jellyseerr client
 	jellyClient, err := jelly.NewJellyClient(jelly.NewJellyClientOpts{
 		Logger:           log.Named("jellyseerr"),
 		JellyseerrURL:    cfg.JellyseerrURL,
@@ -45,6 +48,7 @@ func main() {
 		log.Fatal("failed to create jellyseerr client", zap.Error(err))
 	}
 
+	// Setup Emby
 	embyClient, err := emby.NewEmbyClient(emby.NewEmbyClientOpts{
 		Logger:     log.Named("emby"),
 		EmbyURL:    cfg.EmbyURL,
@@ -54,24 +58,22 @@ func main() {
 		log.Fatal("failed to create emby client", zap.Error(err))
 	}
 
-	trasher := NewTrasher(NewTrasherOpts{
+	// Setup Trasher
+	trsh := trasher.NewTrasher(trasher.NewTrasherOpts{
 		Logger:      log.Named("trasher"),
 		EmbyClient:  embyClient,
 		JellyClient: jellyClient,
 		ExpireAfter: time.Hour * 24 * 30, // 30 days
 	})
 
-	reqMedia, err := trasher.GetRequestedMedia(ctxPair.Graceful())
-	if err != nil {
-		log.Fatal("failed to get requested media", zap.Error(err))
-	}
+	// Setup and run HTTP API
+	apiSrv := httpapi.NewHTTPAPI(httpapi.NewHTTPAPIOpts{
+		Logger:  log.Named("http-api"),
+		Address: cfg.HTTPAPIAddress,
+		Trasher: trsh,
+	})
 
-	expiredMedia, err := trasher.GetMediaToDelete(ctxPair.Graceful(), reqMedia)
-	if err != nil {
-		log.Fatal("failed to get expired media", zap.Error(err))
-	}
-
-	for _, line := range expiredMedia.FormatTree(0) {
-		log.Debug(line)
+	if err := apiSrv.Run(ctxPair.Graceful(), ctxPair.Harsh()); err != nil {
+		log.Fatal("failed to run HTTP API server", zap.Error(err))
 	}
 }

@@ -13,14 +13,16 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
-	golang.org/x/crypto v0.19.0 // indirect
-	golang.org/x/sys v0.17.0 // indirect
+	golang.org/x/crypto v0.21.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 )
 
 require (
+	github.com/danielgtaylor/huma/v2 v2.17.0
+	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-playground/validator/v10 v10.20.0
-	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3
 	go.uber.org/zap v1.27.0
-	golang.org/x/net v0.21.0
+	golang.org/x/net v0.23.0
+	golang.org/x/sync v0.7.0
 )
