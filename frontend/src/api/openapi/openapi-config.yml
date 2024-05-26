@@ -1,4 +1,4 @@
-generatorName: typescript-node
+generatorName: typescript-axios
 inputSpec: ./src/api/openapi/openapi.json
 outputDir: ./src/api/client/
 #packageName: api
