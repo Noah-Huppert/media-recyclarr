@@ -10,10 +10,11 @@
     "preview": "vite preview",
     "api-client:download-spec": "curl ${MEDIA_RECYCLARR_HTTP_API_URI:-http://localhost:5000}/openapi.json -o ./src/api/openapi/openapi.json",
     "api-client:generate": "openapi-generator generate --config src/api/openapi/openapi-config.yml",
-    "api-client:clean": "test -d ./src/api/client && rm -rf ./src/api/client",
+    "api-client:clean": "if test -d ./src/api/client; then rm -rf ./src/api/client; fi",
     "api-client:dev": "npm run api-client:clean && npm run api-client:download-spec && npm run api-client:generate"
   },
   "dependencies": {
+    "evergreen-ui": "^7.1.9",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
