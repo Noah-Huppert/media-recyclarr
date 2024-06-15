@@ -11,4 +11,7 @@ type User struct {
 
 	// Name is the user friendly name of the user
 	Name string
+
+	// FinishedBy are users who have finished the media
+	FinishedBy []UserMediaFinish
 }

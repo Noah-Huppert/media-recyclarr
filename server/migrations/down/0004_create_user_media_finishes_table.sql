@@ -1,0 +1,3 @@
+DROP INDEX user_media_finishes_media_request_id;
+DROP INDEX user_media_finishes_user_id;
+DROP TABLE user_media_finishes;
