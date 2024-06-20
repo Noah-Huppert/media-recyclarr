@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/Noah-Huppert/media-recyclarr/httpapi"
+	"github.com/Noah-Huppert/media-recyclarr/models"
 	"github.com/Noah-Huppert/media-recyclarr/trasher"
 	stdLog "log"
 	"strings"
@@ -37,6 +38,15 @@ func main() {
 	if err != nil {
 		log.Fatal("failed to load configuration", zap.Error(err))
 	}
+
+	// Connect to database
+	db, err := models.OpenDB(models.OpenDBOpts{
+		PostgresURI: cfg.PostgresURI,
+	})
+	if err != nil {
+		log.Fatal("failed to open database connection", zap.Error(err))
+	}
+	log.Debug("database connected", zap.Any("db", db))
 
 	// Setup Jellyseerr client
 	jellyClient, err := jelly.NewJellyClient(jelly.NewJellyClientOpts{

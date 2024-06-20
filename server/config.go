@@ -22,6 +22,9 @@ type Config struct {
 
 	// HTTPAPIAddress is the network address on which the HTTP API will listen
 	HTTPAPIAddress string `env:"HTTP_API_ADDRESS,required" envDefault:":5000"`
+
+	// PostgresURI is the database connection URI
+	PostgresURI string `env:"POSTGRES_URI,required" envDefault:"postgres://media_recyclarr_dev:media_recyclarr_dev@localhost/media_recyclarr_dev"`
 }
 
 // LoadConfig loads configuration from environment variables.

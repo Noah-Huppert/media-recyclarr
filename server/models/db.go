@@ -19,5 +19,13 @@ func OpenDB(opts OpenDBOpts) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to connect to database: %s", err)
 	}
 
+	driverDB, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve underlying driver database client: %s", err)
+	}
+	if err := driverDB.Ping(); err != nil {
+		return nil, fmt.Errorf("failed to ping database: %s", err)
+	}
+
 	return db, nil
 }
