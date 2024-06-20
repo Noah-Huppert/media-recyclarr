@@ -2,11 +2,15 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/Noah-Huppert/media-recyclarr/httpapi"
 	"github.com/Noah-Huppert/media-recyclarr/models"
+	"github.com/Noah-Huppert/media-recyclarr/tasks"
 	"github.com/Noah-Huppert/media-recyclarr/trasher"
+	"golang.org/x/sync/errgroup"
 	stdLog "log"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Noah-Huppert/gointerrupt"
@@ -46,7 +50,8 @@ func main() {
 	if err != nil {
 		log.Fatal("failed to open database connection", zap.Error(err))
 	}
-	log.Debug("database connected", zap.Any("db", db))
+
+	log.Info("connected to database")
 
 	// Setup Jellyseerr client
 	jellyClient, err := jelly.NewJellyClient(jelly.NewJellyClientOpts{
@@ -76,14 +81,53 @@ func main() {
 		ExpireAfter: time.Hour * 24 * 30, // 30 days
 	})
 
-	// Setup and run HTTP API
+	// Setup the task manager
+	taskMgr := tasks.NewTaskManager(tasks.NewTaskManagerOpts{
+		Logger:      log.Named("task-manager"),
+		DB:          db,
+		JellyClient: jellyClient,
+		EmbyClient:  embyClient,
+		Trsh:        trsh,
+	})
+
+	// Setup HTTP API
 	apiSrv := httpapi.NewHTTPAPI(httpapi.NewHTTPAPIOpts{
 		Logger:  log.Named("http-api"),
 		Address: cfg.HTTPAPIAddress,
 		Trasher: trsh,
 	})
 
-	if err := apiSrv.Run(ctxPair.Graceful(), ctxPair.Harsh()); err != nil {
-		log.Fatal("failed to run HTTP API server", zap.Error(err))
+	// Run HTTP API and task manager
+	var ewg errgroup.Group
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	ewg.Go(func() error {
+		err := apiSrv.Run(ctxPair.Graceful(), ctxPair.Harsh())
+		wg.Done()
+		if err != nil {
+			return fmt.Errorf("failed to run HTTP API server: %s", err)
+		}
+
+		return nil
+	})
+
+	wg.Add(1)
+	ewg.Go(func() error {
+		err := taskMgr.Run(ctxPair.Graceful(), ctxPair.Harsh())
+		wg.Done()
+		if err != nil {
+			return fmt.Errorf("failed to run task manager: %s", err)
+		}
+
+		return nil
+	})
+
+	if err := ewg.Wait(); err != nil {
+		log.Error("failed to run entrypoint Go routines", zap.Error(err))
+		ctxPair.GracefulSignalCtx().Cancel()
 	}
+
+	wg.Wait()
+	log.Info("Done")
 }

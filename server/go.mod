@@ -3,7 +3,7 @@ module github.com/Noah-Huppert/media-recyclarr
 go 1.22.2
 
 require (
-	github.com/Noah-Huppert/gointerrupt v1.0.2
+	github.com/Noah-Huppert/gointerrupt v1.1.0
 	github.com/caarlos0/env/v11 v11.0.0
 )
 
