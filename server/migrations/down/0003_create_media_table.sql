@@ -1,0 +1,3 @@
+DROP TABLE media;
+DROP TYPE MEDIATYPE;
+DROP INDEX media_node_path;
