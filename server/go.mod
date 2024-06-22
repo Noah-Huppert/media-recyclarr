@@ -27,6 +27,7 @@ require (
 	github.com/danielgtaylor/huma/v2 v2.17.0
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-playground/validator/v10 v10.20.0
+	github.com/hashicorp/go-set/v2 v2.1.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.23.0
 	golang.org/x/sync v0.7.0

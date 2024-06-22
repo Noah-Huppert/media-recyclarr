@@ -90,7 +90,7 @@ func (mgr *TaskManager) Run(graceful context.Context, harsh context.Context) err
 
 		case req := <-mgr.taskQueue:
 			mgr.logger.Debug("received request to execute task", zap.String("task_type", string(req.taskType)))
-			if err := mgr.executeTask(req); err != nil {
+			if err := mgr.executeTask(graceful, req); err != nil {
 				mgr.logger.Error("failed to execute task", zap.String("task_type", string(req.taskType)), zap.Error(err))
 			} else {
 				mgr.logger.Debug("successfully executed task", zap.String("task_type", string(req.taskType)))
@@ -105,16 +105,24 @@ func (mgr *TaskManager) Run(graceful context.Context, harsh context.Context) err
 }
 
 // executeTask runs the logic of the requested task
-func (mgr *TaskManager) executeTask(req submitTaskPayload) error {
+func (mgr *TaskManager) executeTask(ctx context.Context, req submitTaskPayload) error {
+	// Create task
+	var task Task
+
 	switch req.taskType {
 	case TaskUpdateUsers:
-		return nil
+		task = UpdateUsersTask{
+			db:         mgr.db,
+			embyClient: mgr.embyClient,
+		}
+		break
 
 	default:
 		return fmt.Errorf("unknown task type: %s", req.taskType)
 	}
 
-	return nil
+	// Run task
+	return task.Run(ctx)
 }
 
 // TaskType indicates the task logic to run
