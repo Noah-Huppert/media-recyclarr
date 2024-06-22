@@ -12,6 +12,9 @@ type User struct {
 	// Name is the user friendly name of the user
 	Name string
 
+	// IsAdmin records if the user is an admin
+	IsAdmin bool
+
 	// FinishedBy are users who have finished the media
 	FinishedBy []UserMediaFinish
 }

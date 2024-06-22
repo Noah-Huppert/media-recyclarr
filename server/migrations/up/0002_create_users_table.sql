@@ -3,6 +3,7 @@ CREATE TABLE users (
 
     library_external_id TEXT NOT NULL,
     name TEXT NOT NULL,
+    is_admin BOOLEAN NOT NULL,
 
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
