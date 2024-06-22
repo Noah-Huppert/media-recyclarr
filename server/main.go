@@ -82,13 +82,19 @@ func main() {
 	})
 
 	// Setup the task manager
-	taskMgr := tasks.NewTaskManager(tasks.NewTaskManagerOpts{
+	taskMgr, err := tasks.NewTaskManager(tasks.NewTaskManagerOpts{
 		Logger:      log.Named("task-manager"),
 		DB:          db,
 		JellyClient: jellyClient,
 		EmbyClient:  embyClient,
 		Trsh:        trsh,
+		TaskSchedules: map[tasks.TaskType]time.Duration{
+			tasks.TaskUpdateUsers: time.Minute * 1,
+		},
 	})
+	if err != nil {
+		log.Fatal("failed to make task manager", zap.Error(err))
+	}
 
 	// Setup HTTP API
 	apiSrv := httpapi.NewHTTPAPI(httpapi.NewHTTPAPIOpts{

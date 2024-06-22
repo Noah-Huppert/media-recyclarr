@@ -37,9 +37,15 @@ type TaskManager struct {
 	// trsh is the Trasher
 	trsh *trasher.Trasher
 
+	// taskSchedules indicate when tasks should repeat
+	taskSchedules TaskSchedules
+
 	// taskQueue receives messages when tasks should be run
 	taskQueue chan submitTaskPayload
 }
+
+// TaskSchedules holds the schedule for when tasks should be run on a recurring schedule
+type TaskSchedules map[TaskType]time.Duration
 
 // NewTaskManagerOpts are options for NewTaskManager()
 type NewTaskManagerOpts struct {
@@ -57,26 +63,40 @@ type NewTaskManagerOpts struct {
 
 	// Trsh is the Trasher
 	Trsh *trasher.Trasher
+
+	// TaskSchedules indicate when tasks should repeat
+	TaskSchedules TaskSchedules
+}
+
+// RequiredTaskSchedules are task types which must have a recurring schedule when creating a task manager
+var RequiredTaskSchedules []TaskType = []TaskType{
+	TaskUpdateUsers,
 }
 
 // NewTaskManager creates a new TaskManager
-func NewTaskManager(opts NewTaskManagerOpts) *TaskManager {
-	return &TaskManager{
-		logger:      opts.Logger,
-		db:          opts.DB,
-		jellyClient: opts.JellyClient,
-		embyClient:  opts.EmbyClient,
-		trsh:        opts.Trsh,
-		taskQueue:   make(chan submitTaskPayload, taskQueueSize),
+// Requires that task schedules be provided for: RequiredTaskSchedules
+func NewTaskManager(opts NewTaskManagerOpts) (*TaskManager, error) {
+	for _, taskType := range RequiredTaskSchedules {
+		if _, ok := opts.TaskSchedules[taskType]; !ok {
+			return nil, fmt.Errorf("TaskSchedules must contain a schedule for %s", taskType)
+		}
 	}
+	return &TaskManager{
+		logger:        opts.Logger,
+		db:            opts.DB,
+		jellyClient:   opts.JellyClient,
+		embyClient:    opts.EmbyClient,
+		trsh:          opts.Trsh,
+		taskSchedules: opts.TaskSchedules,
+		taskQueue:     make(chan submitTaskPayload, taskQueueSize),
+	}, nil
 }
 
 // Run blocks and executes tasks as they are needed
 func (mgr *TaskManager) Run(graceful context.Context, harsh context.Context) error {
 	mgr.logger.Info("started")
 
-	refreshTicker := time.NewTicker(time.Hour * 1)
-	mgr.submitRefreshTasks()
+	go mgr.recurringTaskTimers(graceful)
 
 	for {
 		select {
@@ -89,17 +109,14 @@ func (mgr *TaskManager) Run(graceful context.Context, harsh context.Context) err
 			return nil
 
 		case req := <-mgr.taskQueue:
-			mgr.logger.Debug("received request to execute task", zap.String("task_type", string(req.taskType)))
+			mgr.logger.Info("received request to execute task", zap.String("task_type", string(req.taskType)))
 			if err := mgr.executeTask(graceful, req); err != nil {
 				mgr.logger.Error("failed to execute task", zap.String("task_type", string(req.taskType)), zap.Error(err))
 			} else {
-				mgr.logger.Debug("successfully executed task", zap.String("task_type", string(req.taskType)))
+				mgr.logger.Info("successfully executed task", zap.String("task_type", string(req.taskType)))
 			}
 
 			break
-
-		case <-refreshTicker.C:
-			mgr.submitRefreshTasks()
 		}
 	}
 }
@@ -112,6 +129,7 @@ func (mgr *TaskManager) executeTask(ctx context.Context, req submitTaskPayload) 
 	switch req.taskType {
 	case TaskUpdateUsers:
 		task = UpdateUsersTask{
+			logger:     mgr.logger.Named("update-users-task"),
 			db:         mgr.db,
 			embyClient: mgr.embyClient,
 		}
@@ -140,7 +158,38 @@ func (mgr *TaskManager) Submit(taskType TaskType) {
 	}
 }
 
-// submitRefreshTasks submits tasks which are needed for a full refresh of data
-func (mgr *TaskManager) submitRefreshTasks() {
-	mgr.Submit(TaskUpdateUsers)
+// recurringTaskTimers starts timers for each task type in taskSchedules and submits task execution requests on the recurring schedule.
+// Also runs each task once at the start.
+func (mgr *TaskManager) recurringTaskTimers(ctx context.Context) {
+	// Make a ticker for each task type and have them forward messages to a shared channel
+	tickChan := make(chan TaskType)
+
+	for taskType, duration := range mgr.taskSchedules {
+		go func() {
+			ticker := time.NewTicker(duration)
+
+			// Run task once at the start
+			tickChan <- taskType
+
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case <-ticker.C:
+					tickChan <- taskType
+					break
+				}
+			}
+		}()
+	}
+
+	// Submit tasks based on shared channel
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case taskType := <-tickChan:
+			mgr.Submit(taskType)
+		}
+	}
 }
